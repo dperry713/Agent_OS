@@ -1,13 +1,22 @@
-from sqlalchemy import Column, String, Integer, JSON, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, JSON, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
+from typing import Optional
 
 try:
     from pgvector.sqlalchemy import Vector
 except ImportError:
-    Vector = String # Fallback for mock if pgvector missing
+    Vector = String
 
 Base = declarative_base()
+
+class TenantAwareMixin:
+    """Mixin to add tenant-awareness and common audit fields."""
+    tenant_id = Column(String, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by = Column(String, nullable=True)
+    is_deleted = Column(Boolean, default=False, nullable=False)
 
 class DBTenant(Base):
     __tablename__ = 'tenants'
@@ -16,41 +25,52 @@ class DBTenant(Base):
     max_agents = Column(Integer, default=10)
     max_concurrent_tasks = Column(Integer, default=5)
     blocked_tools = Column(JSON, default=[])
-    custom_routing_key = Column(String, nullable=True) # BYOC Routing
+    custom_routing_key = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-class DBAgent(Base):
+class DBAgent(Base, TenantAwareMixin):
     __tablename__ = 'agents'
     agent_id = Column(String, primary_key=True)
-    tenant_id = Column(String, ForeignKey('tenants.tenant_id'), nullable=False)
     name = Column(String, nullable=False)
     metadata_json = Column(JSON, default={})
 
-class DBTask(Base):
+class DBTask(Base, TenantAwareMixin):
     __tablename__ = 'tasks'
     task_id = Column(String, primary_key=True)
     agent_id = Column(String, ForeignKey('agents.agent_id'), nullable=False)
-    tenant_id = Column(String, ForeignKey('tenants.tenant_id'), nullable=False)
     tool_name = Column(String, nullable=False)
     input_data = Column(JSON, nullable=False)
-    status = Column(String, default="queued")
+    status = Column(String, default="queued", index=True)
     result = Column(JSON, nullable=True)
     error = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
     started_at = Column(DateTime, nullable=True)
     finished_at = Column(DateTime, nullable=True)
 
-class DBMemory(Base):
+class DBMemory(Base, TenantAwareMixin):
     __tablename__ = 'memory'
-    tenant_id = Column(String, ForeignKey('tenants.tenant_id'), primary_key=True)
     agent_id = Column(String, ForeignKey('agents.agent_id'), primary_key=True)
     key = Column(String, primary_key=True)
     value = Column(Text, nullable=False)
 
-class DBVectorMemory(Base):
+class DBVectorMemory(Base, TenantAwareMixin):
     __tablename__ = 'vector_memory'
     memory_id = Column(String, primary_key=True)
-    tenant_id = Column(String, ForeignKey('tenants.tenant_id'), nullable=False)
     agent_id = Column(String, ForeignKey('agents.agent_id'), nullable=False)
     content = Column(Text, nullable=False)
     embedding = Column(Vector(1536), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+
+class DBAuditLog(Base, TenantAwareMixin):
+    __tablename__ = 'audit_logs'
+    log_id = Column(String, primary_key=True)
+    agent_id = Column(String, nullable=True)
+    task_id = Column(String, nullable=True)
+    action = Column(String, nullable=False)
+    details = Column(JSON, nullable=True)
+
+class DBUsageMetric(Base, TenantAwareMixin):
+    __tablename__ = 'usage_metrics'
+    metric_id = Column(String, primary_key=True)
+    agent_id = Column(String, nullable=False)
+    task_id = Column(String, nullable=False)
+    tokens_used = Column(Integer, default=0)
+    cost = Column(Integer, default=0) # In milli-cents

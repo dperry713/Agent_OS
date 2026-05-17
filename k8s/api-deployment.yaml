@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-os-api
+spec:
+  selector:
+    app: agent-os
+    component: api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-os-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent-os
+      component: api
+  template:
+    metadata:
+      labels:
+        app: agent-os
+        component: api
+    spec:
+      containers:
+      - name: api
+        image: agent-os:latest
+        command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+        envFrom:
+        - secretRef:
+            name: agent-os-secrets
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
