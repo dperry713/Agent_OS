@@ -1,5 +1,6 @@
 from typing import Any, Optional
 from app.memory.store import MemoryStore
+from app.security.vault import vault_service
 
 class ToolContext:
     def __init__(self, tenant_id: str, agent_id: str, memory_store: MemoryStore):
@@ -15,3 +16,7 @@ class ToolContext:
 
     async def delete_memory(self, key: str):
         await self._memory.delete(self.tenant_id, self.agent_id, key)
+
+    def get_secret(self, key: str, provider: str = "general") -> Optional[str]:
+        """Fetches a secret from OpenBao for the current tenant."""
+        return vault_service.get_llm_api_key(self.tenant_id, key if provider == "general" else provider)

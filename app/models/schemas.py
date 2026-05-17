@@ -8,6 +8,7 @@ class TaskStatus(str, Enum):
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
+    AWAITING_INPUT = "awaiting_input"
 
 class Tenant(BaseModel):
     tenant_id: str
