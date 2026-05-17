@@ -1,11 +1,12 @@
 import hvac
 import os
+from app.core.config import settings
 from typing import Optional
 
 class VaultService:
     def __init__(self):
         self.client = hvac.Client(
-            url=os.getenv("VAULT_ADDR", "http://127.0.0.1:8200"),
+            url=settings.VAULT_ADDR,
             token=os.getenv("VAULT_TOKEN")
         )
 

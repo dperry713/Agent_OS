@@ -64,38 +64,13 @@ async def submit_task(
     tool_name: str, 
     input_data: Dict[str, Any]
 ):
-    tenant = await system_registry.get_tenant(tenant_id)
-    agent = await system_registry.get_agent(tenant_id, agent_id)
-    
-    if not tenant or not agent:
-        raise HTTPException(status_code=404, detail="Tenant or Agent not found")
-    
-    # Construct Task and Persist to DB
+    # Construct Task ID
     task_id = str(uuid.uuid4())
-    task = Task(
-        task_id=task_id,
-        agent_id=agent_id,
-        tenant_id=tenant_id,
-        tool_name=tool_name,
-        input_data=input_data
-    )
-
-    async with await get_db_session(tenant_id) as session:
-        db_task = DBTask(
-            task_id=task.task_id,
-            agent_id=task.agent_id,
-            tenant_id=task.tenant_id,
-            tool_name=task.tool_name,
-            input_data=task.input_data,
-            status=task.status
-        )
-        session.add(db_task)
-        await session.commit()
 
     # Submit to Celery
-    execute_agent_task.delay(task.dict(), agent.dict(), tenant.dict())
+    execute_agent_task.delay(task_id, tenant_id, agent_id, tool_name, input_data)
     
-    return {"task_id": task_id}
+    return {"task_id": task_id, "status": "queued"}
 
 @app.get("/tasks/{task_id}", response_model=Task)
 async def get_task(task_id: str, tenant_id: str):

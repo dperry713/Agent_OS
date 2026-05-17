@@ -7,7 +7,7 @@ spec:
   scaleTargetRef:
     name: agent-os-worker
   minReplicaCount: 0
-  maxReplicaCount: 50
+  maxReplicaCount: 100
   triggers:
   - type: rabbitmq
     metadata:
