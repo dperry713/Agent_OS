@@ -113,24 +113,31 @@ class SandboxExecutor:
             raise
 
     async def run_python(self, code: str, tenant_id: str) -> SandboxResult:
-        """Securely executes Python logic in a isolated subprocess."""
+        """
+        Executes Python logic with multi-layered isolation:
+        1. Hard compute isolation via gVisor (if available).
+        2. POSIX resource limits (ulimits) via preexec_fn.
+        3. Mandatory process group separation and signal jailing.
+        """
         audit_id = f"py-{tenant_id}-{datetime.utcnow().strftime('%H%M%S')}"
         
-        # Scrub and wrap code for execution
+        # Security: Scrub and wrap code for execution
         safe_code = f"import sys, os; sys.path = []; {code}"
         
-        logger.info(f"Sandbox[{audit_id}] Executing Python (Profile: {self.limits.profile})")
+        if self.backend == SandboxBackend.GVISOR and not self._is_gvisor:
+            logger.warning("gVisor backend requested but not detected. Falling back to hardened process.")
         
         start_time = asyncio.get_event_loop().time()
         
         try:
+            # We use a subprocess with a strictly defined preexec_fn to set ulimits
             process = await asyncio.create_subprocess_exec(
                 "python3", "-c", safe_code,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 preexec_fn=self._set_resource_limits,
-                start_new_session=True, # Prevent signal propagation
-                env={"LANG": "C.UTF-8", "PYTHONUNBUFFERED": "1"}
+                start_new_session=True, # Isolation: Become process group leader
+                env={"LANG": "C.UTF-8", "PYTHONUNBUFFERED": "1", "AGENT_OS": "1"}
             )
 
             try:
@@ -140,9 +147,14 @@ class SandboxExecutor:
                 )
                 duration = asyncio.get_event_loop().time() - start_time
                 
+                # Security: Enforce hard output size caps (1MB)
+                limit = 1024 * 1024
+                out = stdout.decode('utf-8', 'replace')[:limit]
+                err = stderr.decode('utf-8', 'replace')[:limit]
+                
                 return SandboxResult(
-                    stdout=stdout.decode('utf-8', 'replace')[:100000].strip(),
-                    stderr=stderr.decode('utf-8', 'replace')[:10000].strip(),
+                    stdout=out.strip(),
+                    stderr=err.strip(),
                     exit_status=process.returncode or 0,
                     cpu_time=duration,
                     is_gvisor=self._is_gvisor,
@@ -150,16 +162,15 @@ class SandboxExecutor:
                 )
 
             except asyncio.TimeoutError:
-                # Force kill process group
+                # Security: SIGKILL the entire process group
                 try: os.killpg(os.getpgid(process.pid), signal.SIGKILL)
                 except: pass
                 await process.wait()
-                logger.error(f"Sandbox[{audit_id}] TIMEOUT reached.")
-                raise SandboxError(f"Security: Code execution timed out after {self.limits.timeout_seconds}s")
+                raise SandboxError(f"Security: Execution timed out ({self.limits.timeout_seconds}s)")
 
         except Exception as e:
             if isinstance(e, SandboxError): raise
-            logger.exception(f"Sandbox[{audit_id}] CRITICAL FAIL")
+            logger.exception(f"Sandbox Critical Failure: {audit_id}")
             raise SandboxError(f"Sandbox internal error: {str(e)}")
 
     async def run_cmd(self, command: str, args: List[str], tenant_id: str) -> SandboxResult:

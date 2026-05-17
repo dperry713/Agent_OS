@@ -1,3 +1,8 @@
+import asyncio
+import structlog
+from datetime import datetime
+from opentelemetry import trace
+from sqlalchemy import update, select
 from .celery_app import app
 from app.runtime.engine import RuntimeEngine
 from app.policy.engine import PolicyEngine
@@ -6,12 +11,8 @@ from app.models.schemas import Task, Agent, Tenant, TaskStatus
 from app.models.db import DBTask
 from app.kernel.registry import system_registry
 from app.core.db import get_db_session
-from sqlalchemy import update
-from datetime import datetime
-import asyncio
-import logging
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Singletons for worker performance
 policy_engine = PolicyEngine()
@@ -19,13 +20,33 @@ memory_store = MemoryStore()
 runtime_engine = RuntimeEngine(policy_engine, memory_store)
 
 async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_name: str, input_data: dict):
+    # Bind context to structlog
+    structlog.contextvars.clear_contextvars()
+    structlog.contextvars.bind_contextvars(
+        task_id=task_id,
+        tenant_id=tenant_id,
+        agent_id=agent_id,
+        tool=tool_name
+    )
+
+    # Enrich OTel Span
+    span = trace.get_current_span()
+    if span.is_recording():
+        span.set_attribute("task_id", task_id)
+        span.set_attribute("tenant_id", tenant_id)
+        span.set_attribute("agent_id", agent_id)
+
+    logger.info("task_execution_started")
+
     # RLS is handled by get_db_session(tenant_id)
     async with await get_db_session(tenant_id) as session:
         # 1. Initialize Task Record with Idempotency Check
-        existing_task = await session.get(DBTask, task_id)
+        result = await session.execute(select(DBTask).where(DBTask.task_id == task_id))
+        existing_task = result.scalar_one_or_none()
+        
         if existing_task:
-            if existing_task.status in [TaskStatus.COMPLETED, TaskStatus.RUNNING]:
-                logger.warning(f"Task {task_id} already in state {existing_task.status}. Skipping.")
+            if existing_task.status in ["completed", "running"]:
+                logger.warning("task_already_processed", status=existing_task.status)
                 return existing_task.result
 
         if not existing_task:
@@ -35,7 +56,7 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
                 agent_id=agent_id,
                 tool_name=tool_name,
                 input_data=input_data,
-                status=TaskStatus.RUNNING,
+                status="running",
                 started_at=datetime.utcnow(),
                 version=1
             )
@@ -47,7 +68,7 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
                 update(DBTask)
                 .where(DBTask.task_id == task_id)
                 .where(DBTask.version == existing_task.version)
-                .values(status=TaskStatus.RUNNING, started_at=datetime.utcnow(), version=DBTask.version + 1)
+                .values(status="running", started_at=datetime.utcnow(), version=DBTask.version + 1)
             )
             if result.rowcount == 0:
                 raise Exception("Optimistic locking failure: Task updated by another worker.")
@@ -66,7 +87,8 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
             updated_task = await runtime_engine.execute_task(task_obj, agent, tenant)
             
             # 4. Final Persist with version increment
-            current_task = await session.get(DBTask, task_id)
+            current_task_res = await session.execute(select(DBTask).where(DBTask.task_id == task_id))
+            current_task = current_task_res.scalar_one()
             await session.execute(
                 update(DBTask)
                 .where(DBTask.task_id == task_id)
@@ -83,14 +105,15 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
             return updated_task.dict()
 
         except Exception as e:
-            logger.exception(f"Fatal error in task {task_id}")
-            current_task = await session.get(DBTask, task_id)
+            logger.exception("task_fatal_error", error=str(e))
+            current_task_res = await session.execute(select(DBTask).where(DBTask.task_id == task_id))
+            current_task = current_task_res.scalar_one()
             await session.execute(
                 update(DBTask)
                 .where(DBTask.task_id == task_id)
                 .where(DBTask.version == current_task.version)
                 .values(
-                    status=TaskStatus.FAILED, 
+                    status="failed", 
                     error=str(e), 
                     finished_at=datetime.utcnow(),
                     version=DBTask.version + 1

@@ -20,6 +20,20 @@ class MetricsManager:
             registry=self.registry
         )
 
+        self.tool_execution_total = Counter(
+            "agent_os_tool_execution_total",
+            "Total number of tool executions",
+            ["tenant_id", "tool_name", "status"],
+            registry=self.registry
+        )
+
+        self.sandbox_errors_total = Counter(
+            "agent_os_sandbox_errors_total",
+            "Total number of sandbox environment errors",
+            ["tenant_id", "error_type"],
+            registry=self.registry
+        )
+
     def get_latest_metrics(self) -> Response:
         return Response(generate_latest(self.registry), media_type=CONTENT_TYPE_LATEST)
 

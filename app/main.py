@@ -47,12 +47,30 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 @app.middleware("http")
 async def tenant_context_middleware(request: Request, call_next):
     """
-    Extracts tenant_id from request headers or auth token and
-    attaches it to the request state for downstream use in DB sessions.
+    Extracts tenant_id and request_id for correlation across services.
     """
     tenant_id = request.headers.get("X-Tenant-ID")
+    request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+    
     request.state.tenant_id = tenant_id
+    request.state.request_id = request_id
+    
+    # Enrich OTel Span
+    span = trace.get_current_span()
+    if span.is_recording():
+        span.set_attribute("tenant_id", tenant_id or "anonymous")
+        span.set_attribute("request_id", request_id)
+
+    # Bind request context to structlog
+    structlog.contextvars.clear_contextvars()
+    structlog.contextvars.bind_contextvars(
+        tenant_id=tenant_id,
+        request_id=request_id,
+        path=request.url.path
+    )
+
     response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
     return response
 
 @app.middleware("http")
@@ -163,24 +181,77 @@ async def approve_task(task_id: str):
         
         return {"status": "resumed", "task_id": task_id}
 
+from fastapi.responses import StreamingResponse
+from sse_starlette.sse import EventSourceResponse
+
+# ... (rest of imports unchanged)
+
+@app.get("/tasks/{task_id}/events")
+async def stream_task_events_sse(request: Request, task_id: str):
+    """
+    SSE Fallback for real-time task streaming.
+    More reliable over high-latency networks or through restrictive proxies.
+    """
+    async def event_generator():
+        client = valkey_async.from_url(settings.VALKEY_URL)
+        pubsub = client.pubsub()
+        await pubsub.subscribe(f"task_stream:{task_id}")
+        
+        try:
+            async for message in pubsub.listen():
+                if await request.is_disconnected():
+                    break
+                if message["type"] == "message":
+                    yield {
+                        "event": "message",
+                        "data": message["data"].decode("utf-8")
+                    }
+        finally:
+            await pubsub.unsubscribe(f"task_stream:{task_id}")
+            await client.close()
+
+    return EventSourceResponse(event_generator())
+
 @app.websocket("/tasks/{task_id}/stream")
 async def stream_task(websocket: WebSocket, task_id: str):
     await websocket.accept()
     logger.info("websocket_connected", task_id=task_id)
     
+    # Heartbeat configuration
+    HEARTBEAT_INTERVAL = 30
+    
+    async def heartbeat(ws: WebSocket):
+        try:
+            while True:
+                await asyncio.sleep(HEARTBEAT_INTERVAL)
+                await ws.send_json({"type": "ping", "ts": time.time()})
+        except Exception:
+            pass
+
+    client = valkey_async.from_url(settings.VALKEY_URL)
+    pubsub = client.pubsub()
+    
     try:
-        client = valkey_async.from_url(settings.VALKEY_URL)
-        pubsub = client.pubsub()
         await pubsub.subscribe(f"task_stream:{task_id}")
+        
+        # Start heartbeat in background
+        heartbeat_task = asyncio.create_task(heartbeat(websocket))
         
         async for message in pubsub.listen():
             if message["type"] == "message":
                 await websocket.send_text(message["data"].decode("utf-8"))
+                
     except WebSocketDisconnect:
         logger.info("websocket_disconnected", task_id=task_id)
     except Exception as e:
         logger.error("websocket_error", task_id=task_id, error=str(e))
     finally:
-        await websocket.close()
+        heartbeat_task.cancel()
+        await pubsub.unsubscribe(f"task_stream:{task_id}")
+        await client.close()
+        try:
+            await websocket.close()
+        except Exception:
+            pass
 
 FastAPIInstrumentor().instrument_app(app)

@@ -1,20 +1,83 @@
 version: '3.8'
 
 services:
-  # --- Infrastructure ---
-  postgres:
-    image: postgres:15
+  api:
+    build: .
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: agent_os
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
+      - VAULT_ADDR=http://openbao:8200
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VALKEY_URL=redis://valkey:6379/0
+      - RABBITMQ_URL=pyamqp://guest:guest@rabbitmq:5672//
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+    depends_on:
+      - postgres
+      - openbao
+      - jaeger
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ["celery", "-A", "app.kernel.celery_app", "worker", "--loglevel=info"]
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
+      - VAULT_ADDR=http://openbao:8200
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VALKEY_URL=redis://valkey:6379/0
+      - RABBITMQ_URL=pyamqp://guest:guest@rabbitmq:5672//
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+    depends_on:
+      - postgres
+      - openbao
+      - jaeger
+    restart: unless-stopped
+
+  openbao:
+    image: openbao/openbao:latest
+    environment:
+      - BAO_DEV_ROOT_TOKEN_ID=root # Fallback for dev, production uses config.hcl
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "8200:8200"
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
 
   valkey:
     image: valkey/valkey:7.2
-    ports:
-      - "6379:6379"
+    security_opt:
+      - no-new-privileges:true
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -22,40 +85,15 @@ services:
       - "5672:5672"
       - "15672:15672"
 
-  openbao:
-    image: openbao/openbao:latest
-    environment:
-      BAO_DEV_ROOT_TOKEN_ID: "root"
-      BAO_ADDR: "http://0.0.0.0:8200"
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "8200:8200"
+      - "9090:9090"
 
-  # --- Application ---
-  api:
-    build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    depends_on:
-      - postgres
-      - rabbitmq
-      - valkey
-    environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
-      RABBITMQ_URL: pyamqp://guest@rabbitmq//
-      VALKEY_URL: redis://valkey:6379/0
+  jaeger:
+    image: jaegertracing/all-in-one:latest
     ports:
-      - "8000:8000"
-
-  worker:
-    build: .
-    command: celery -A app.kernel.celery_app worker --loglevel=info
-    depends_on:
-      - postgres
-      - rabbitmq
-      - valkey
-      - openbao
-    environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
-      RABBITMQ_URL: pyamqp://guest@rabbitmq//
-      VALKEY_URL: redis://valkey:6379/0
-      VAULT_ADDR: http://openbao:8200
-      VAULT_TOKEN: root
+      - "16686:16686" # UI
+      - "4317:4317"  # OTLP gRPC
