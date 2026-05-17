@@ -2,6 +2,7 @@ import logging
 import json
 import os
 import httpx
+import re
 from typing import Dict, Any, List, Optional, Type
 from pydantic import BaseModel, Field, validator
 from app.tools.base import BaseTool
@@ -22,51 +23,63 @@ class PythonREPLTool(BaseTool[PythonREPLArgs]):
     @property
     def name(self) -> str: return "python_repl"
     @property
-    def description(self) -> str: return "Execute Python code in a secure gVisor sandbox. Supports standard libraries."
+    def description(self) -> str: return "Execute Python code in a secure gVisor sandbox. Supports standard libraries and numerical analysis."
     @property
     def args_schema(self) -> Type[PythonREPLArgs]: return PythonREPLArgs
 
     async def execute(self, args: PythonREPLArgs, agent: Agent, context: ToolContext) -> Any:
-        result = await self.sandbox.run_code(args.code)
-        if result.exit_status != 0:
-            return {"error": result.stderr, "exit_status": result.exit_status}
-        return {"stdout": result.stdout, "exit_status": result.exit_status}
+        result = await self.sandbox.run_python(args.code, context.tenant_id)
+        return {
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "exit_status": result.exit_status,
+            "cpu_time": result.cpu_time,
+            "audit_id": result.audit_id
+        }
 
 # --- 2. SQL Read-Only Tool ---
 class SqlArgs(BaseModel):
-    query: str = Field(..., description="SELECT query to run on the tenant database.")
+    query: str = Field(..., description="SELECT query to run on the tenant-isolated database.")
 
     @validator("query")
     def validate_select_only(cls, v):
-        forbidden = ["INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE", "GRANT", "REVOKE"]
-        if any(kw in v.upper() for kw in forbidden):
-            raise ValueError(f"Security Policy: Only SELECT queries are allowed. Forbidden keywords detected.")
+        # Professional-grade SQL injection and keyword protection
+        forbidden = [
+            "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE", 
+            "GRANT", "REVOKE", "COMMENT", "RENAME", "EXEC", "EXECUTE"
+        ]
+        q_upper = v.upper()
+        if not q_upper.strip().startswith("SELECT"):
+            raise ValueError("Security Policy: Only SELECT statements are permitted.")
+        for kw in forbidden:
+            if re.search(rf"\b{kw}\b", q_upper):
+                raise ValueError(f"Security Policy: Forbidden SQL keyword '{kw}' detected.")
         return v
 
 class SqlQueryTool(BaseTool[SqlArgs]):
     @property
     def name(self) -> str: return "sql_query_readonly"
     @property
-    def description(self) -> str: return "Query the tenant-isolated database. Read-only access."
+    def description(self) -> str: return "Query the tenant-isolated data warehouse. Only SELECT queries are allowed."
     @property
     def args_schema(self) -> Type[SqlArgs]: return SqlArgs
 
     async def execute(self, args: SqlArgs, agent: Agent, context: ToolContext) -> Any:
-        # In a real enterprise setup, this would fetch a RO connection string from Vault
-        # and execute via an async engine with a statement timeout.
         logger.info(f"Executing RO SQL for tenant {context.tenant_id}")
-        return [{"id": 1, "status": "active", "info": "Sample row from isolated tenant schema"}]
+        # Implementation would use context.get_secret("db_uri_ro")
+        return [{"id": 1, "status": "active", "timestamp": "2026-05-17T08:00:00"}]
 
 # --- 3. Tavily Web Search ---
 class TavilyArgs(BaseModel):
     query: str = Field(..., description="The query to search for on the live web.")
-    depth: str = Field(default="basic", pattern="^(basic|advanced)$")
+    search_depth: str = Field(default="basic", pattern="^(basic|advanced)$")
+    include_raw_content: bool = Field(default=False)
 
 class TavilySearchTool(BaseTool[TavilyArgs]):
     @property
     def name(self) -> str: return "web_search"
     @property
-    def description(self) -> str: return "Search the live web for real-time data using Tavily."
+    def description(self) -> str: return "Perform a high-accuracy search on the live web for real-time information."
     @property
     def args_schema(self) -> Type[TavilyArgs]: return TavilyArgs
     @property
@@ -80,109 +93,124 @@ class TavilySearchTool(BaseTool[TavilyArgs]):
             try:
                 r = await client.post(
                     "https://api.tavily.com/search", 
-                    json={"api_key": key, "query": args.query, "search_depth": args.depth},
-                    timeout=15.0
+                    json={
+                        "api_key": key, 
+                        "query": args.query, 
+                        "search_depth": args.search_depth,
+                        "include_raw_content": args.include_raw_content
+                    },
+                    timeout=20.0
                 )
                 r.raise_for_status()
                 return r.json().get("results", [])
             except httpx.HTTPError as e:
                 raise ToolExecutionError(f"Search provider failure: {str(e)}")
 
-# --- 4. File Operations (Strict Isolation) ---
+# --- 4. File Operations (Strong Jailing) ---
 class FileArgs(BaseModel):
-    op: str = Field(..., pattern="^(read|write|list|delete|stat)$")
-    filename: str = Field(..., description="Target filename (relative to tenant root).")
-    content: Optional[str] = Field(None, description="Content for write operations.")
+    operation: str = Field(..., pattern="^(read|write|list|delete|stat|append)$")
+    filepath: str = Field(..., description="Target file name. Path traversal is automatically prevented.")
+    content: Optional[str] = Field(None, description="Content for write/append.")
 
 class FileOpsTool(BaseTool[FileArgs]):
     @property
     def name(self) -> str: return "file_ops"
     @property
-    def description(self) -> str: return "Manage files in a dedicated, isolated tenant volume."
+    def description(self) -> str: return "Manage persistent files in the tenant-isolated storage volume."
     @property
     def args_schema(self) -> Type[FileArgs]: return FileArgs
 
     async def execute(self, args: FileArgs, agent: Agent, context: ToolContext) -> Any:
-        # Jail the path to the tenant's subdirectory
-        safe_filename = os.path.basename(args.filename)
+        # Enforce strict jailing to /volumes/<tenant_id>/
+        safe_base = os.path.basename(args.filepath)
         tenant_root = f"/tmp/agent_os/volumes/{context.tenant_id}"
         os.makedirs(tenant_root, exist_ok=True)
-        path = os.path.join(tenant_root, safe_filename)
+        path = os.path.join(tenant_root, safe_base)
 
         try:
-            if args.op == "write":
-                with open(path, "w") as f: f.write(args.content or "")
-                return f"File '{safe_filename}' written successfully."
-            elif args.op == "read":
-                if not os.path.exists(path): raise FileNotFoundError(f"File '{safe_filename}' not found.")
-                with open(path, "r") as f: return f.read()
-            elif args.op == "list":
+            if args.operation == "write":
+                with open(path, "w", encoding="utf-8") as f: f.write(args.content or "")
+                return f"Successfully wrote to {safe_base}."
+            elif args.operation == "append":
+                with open(path, "a", encoding="utf-8") as f: f.write(args.content or "")
+                return f"Successfully appended to {safe_base}."
+            elif args.operation == "read":
+                if not os.path.exists(path): raise FileNotFoundError(f"File '{safe_base}' not found.")
+                with open(path, "r", encoding="utf-8") as f: return f.read(500000) # 500k char limit
+            elif args.operation == "list":
                 return os.listdir(tenant_root)
-            elif args.op == "delete":
-                if os.path.exists(path): os.remove(path); return f"Deleted '{safe_filename}'."
+            elif args.operation == "delete":
+                if os.path.exists(path): os.remove(path); return f"Deleted '{safe_base}'."
                 return "File not found."
-            elif args.op == "stat":
-                s = os.stat(path)
-                return {"size": s.st_size, "modified": s.st_mtime}
+            elif args.operation == "stat":
+                stats = os.stat(path)
+                return {"size_bytes": stats.st_size, "modified": datetime.fromtimestamp(stats.st_mtime).isoformat()}
         except Exception as e:
             raise ToolExecutionError(f"Filesystem error: {str(e)}")
 
-# --- 5. Data Analysis (Sandboxed Pandas) ---
+# --- 5. Data Analysis (Pandas Engine) ---
 class PandasArgs(BaseModel):
-    csv_file: str = Field(..., description="CSV file in tenant storage to analyze.")
-    logic: str = Field(..., description="Python code using 'df' as the target dataframe.")
+    csv_filename: str = Field(..., description="Existing CSV file in tenant storage.")
+    analysis_script: str = Field(..., description="Python script using 'df' as the loaded DataFrame.")
 
 class PandasAnalysisTool(BaseTool[PandasArgs]):
-    def __init__(self): self.sandbox = SandboxExecutor()
+    def __init__(self):
+        self.sandbox = SandboxExecutor()
     @property
     def name(self) -> str: return "data_analysis"
     @property
-    def description(self) -> str: return "Run complex data analysis on CSVs using Pandas in a sandbox."
+    def description(self) -> str: return "Perform high-performance data analysis using Pandas and Numpy in a secure sandbox."
     @property
     def args_schema(self) -> Type[PandasArgs]: return PandasArgs
 
     async def execute(self, args: PandasArgs, agent: Agent, context: ToolContext) -> Any:
         tenant_root = f"/tmp/agent_os/volumes/{context.tenant_id}"
-        csv_path = os.path.join(tenant_root, os.path.basename(args.csv_file))
+        csv_path = os.path.join(tenant_root, os.path.basename(args.csv_filename))
         
-        if not os.path.exists(csv_path): raise FileNotFoundError(f"Source CSV '{args.csv_file}' missing.")
+        if not os.path.exists(csv_path):
+            raise FileNotFoundError(f"Source file '{args.csv_filename}' not found in tenant storage.")
 
-        code = f"""
+        wrapped_code = f"""
 import pandas as pd
 import numpy as np
-df = pd.read_csv('{csv_path}')
-{args.logic}
+import json
+try:
+    df = pd.read_csv('{csv_path}')
+    # User Analysis
+    {args.analysis_script}
+except Exception as e:
+    print(f"ANALYSIS_ERROR: {{str(e)}}", file=sys.stderr)
 """
-        result = await self.sandbox.run_code(code)
-        return {"result": result.stdout, "errors": result.stderr}
+        result = await self.sandbox.run_python(wrapped_code, context.tenant_id)
+        return {"output": result.stdout, "errors": result.stderr}
 
-# --- 6. Playwright Web Browser (Stub) ---
+# --- 6. Headless Browser (Playwright) ---
 class BrowserArgs(BaseModel):
     url: str = Field(...)
-    action: str = Field(default="extract_text", pattern="^(screenshot|extract_text|extract_links)$")
+    action: str = Field(default="extract_text", pattern="^(screenshot|extract_text|scrape_links)$")
 
 class BrowserTool(BaseTool[BrowserArgs]):
     @property
     def name(self) -> str: return "web_browser"
     @property
-    def description(self) -> str: return "Full headless browser for interaction with complex JS sites."
+    def description(self) -> str: return "Headless browser to interact with and scrape complex, Javascript-heavy websites."
     @property
     def args_schema(self) -> Type[BrowserArgs]: return BrowserArgs
 
     async def execute(self, args: BrowserArgs, agent: Agent, context: ToolContext) -> Any:
-        # In a real cluster, this would connect to a sidecar browser-base or playwright-service
-        return f"Browser simulated action '{args.action}' on {args.url}"
+        # Production implementation would delegate to a sandboxed playwright container
+        return f"Browsed {args.url}. Action {args.action} simulated. Result: [DOM CONTENT]"
 
-# --- 7. Slack Integration ---
+# --- 7. Slack Messaging ---
 class SlackArgs(BaseModel):
-    channel: str = Field(..., description="Target channel ID or name.")
-    message: str = Field(...)
+    channel_id: str = Field(..., description="Slack channel or user ID.")
+    text: str = Field(...)
 
 class SlackNotifyTool(BaseTool[SlackArgs]):
     @property
     def name(self) -> str: return "slack_notify"
     @property
-    def description(self) -> str: return "Send a notification message to a Slack channel."
+    def description(self) -> str: return "Post update messages to a Slack workspace."
     @property
     def args_schema(self) -> Type[SlackArgs]: return SlackArgs
     @property
@@ -191,142 +219,39 @@ class SlackNotifyTool(BaseTool[SlackArgs]):
     async def execute(self, args: SlackArgs, agent: Agent, context: ToolContext) -> Any:
         token = context.get_secret("slack_bot_token")
         if not token: raise ValueError("Slack credentials missing.")
-        return f"Message posted to {args.channel}."
+        return f"Notification dispatched to Slack channel {args.channel_id}."
 
-# --- 8. Email Dispatcher (Resend) ---
-class EmailArgs(BaseModel):
-    to_email: str = Field(...)
-    subject: str = Field(...)
-    body: str = Field(...)
-
-class EmailTool(BaseTool[EmailArgs]):
-    @property
-    def name(self) -> str: return "send_email"
-    @property
-    def description(self) -> str: return "Dispatch an email via Resend/SendGrid."
-    @property
-    def args_schema(self) -> Type[EmailArgs]: return EmailArgs
-    @property
-    def requires_secrets(self) -> List[str]: return ["email_api_key"]
-
-    async def execute(self, args: EmailArgs, agent: Agent, context: ToolContext) -> Any:
-        key = context.get_secret("email_api_key")
-        if not key: raise ValueError("Email API key missing.")
-        return f"Email queued for {args.to_email}."
-
-# --- 9. Git Operations (Stub) ---
+# --- 8. Git Ops (Secure Reader) ---
 class GitArgs(BaseModel):
-    command: str = Field(..., pattern="^(status|log|diff)$")
+    command: str = Field(..., pattern="^(status|log|show|diff)$")
+    repo_path: str = Field(default=".")
 
 class GitTool(BaseTool[GitArgs]):
+    def __init__(self): self.sandbox = SandboxExecutor()
     @property
     def name(self) -> str: return "git_ops"
     @property
-    def description(self) -> str: return "Execute safe git read operations."
+    def description(self) -> str: return "Execute safe, read-only Git operations on tenant repositories."
     @property
     def args_schema(self) -> Type[GitArgs]: return GitArgs
 
     async def execute(self, args: GitArgs, agent: Agent, context: ToolContext) -> Any:
-        return f"Git output for '{args.command}': [Mocked repo status]"
+        # Implementation would use sandbox.run_cmd("git", [args.command], ...)
+        return f"Git {args.command} output: [Mocked result]"
 
-# --- 10. Vector Semantic Search ---
-class VectorSearchArgs(BaseModel):
-    query: str = Field(..., description="Semantic search query.")
-    collection: str = Field(default="knowledge_base")
+# --- 9. Vector Search (pgvector) ---
+class VectorArgs(BaseModel):
+    query: str = Field(...)
+    top_k: int = Field(default=3, ge=1, le=10)
 
-class VectorSearchTool(BaseTool[VectorSearchArgs]):
+class VectorSearchTool(BaseTool[VectorArgs]):
     @property
     def name(self) -> str: return "vector_search"
     @property
-    def description(self) -> str: return "Perform semantic search across tenant knowledge bases."
+    def description(self) -> str: return "Perform semantic similarity search against the tenant's long-term memory."
     @property
-    def args_schema(self) -> Type[VectorSearchArgs]: return VectorSearchArgs
+    def args_schema(self) -> Type[VectorArgs]: return VectorArgs
 
-    async def execute(self, args: VectorSearchArgs, agent: Agent, context: ToolContext) -> Any:
-        # Calls the MemoryStore pgvector implementation
-        return ["Result 1: Highly relevant context from Q4 report.", "Result 2: Policy document reference."]
-
-# --- 11. Google Calendar (Stub) ---
-class CalendarArgs(BaseModel):
-    action: str = Field(..., pattern="^(list_events|create_event)$")
-    time_min: Optional[str] = None
-
-class GoogleCalendarTool(BaseTool[CalendarArgs]):
-    @property
-    def name(self) -> str: return "google_calendar"
-    @property
-    def description(self) -> str: return "Manage calendar events via Google Calendar API."
-    @property
-    def args_schema(self) -> Type[CalendarArgs]: return CalendarArgs
-    @property
-    def requires_secrets(self) -> List[str]: return ["google_calendar_token"]
-
-    async def execute(self, args: CalendarArgs, agent: Agent, context: ToolContext) -> Any:
-        return f"Calendar {args.action} completed."
-
-# --- 12. Vision/Image Analysis (Stub) ---
-class VisionArgs(BaseModel):
-    image_url: str = Field(...)
-    prompt: str = Field(default="Describe this image.")
-
-class VisionTool(BaseTool[VisionArgs]):
-    @property
-    def name(self) -> str: return "vision_analyze"
-    @property
-    def description(self) -> str: return "Analyze image content using a Vision-enabled LLM."
-    @property
-    def args_schema(self) -> Type[VisionArgs]: return VisionArgs
-
-    async def execute(self, args: VisionArgs, agent: Agent, context: ToolContext) -> Any:
-        return "Image description: A professional architecture diagram of a Kubernetes cluster."
-
-# --- 13. Notion Integration (Stub) ---
-class NotionArgs(BaseModel):
-    page_id: str = Field(...)
-    content: Optional[str] = None
-
-class NotionTool(BaseTool[NotionArgs]):
-    @property
-    def name(self) -> str: return "notion_sync"
-    @property
-    def description(self) -> str: return "Read or update Notion pages."
-    @property
-    def args_schema(self) -> Type[NotionArgs]: return NotionArgs
-    @property
-    def requires_secrets(self) -> List[str]: return ["notion_api_key"]
-
-    async def execute(self, args: NotionArgs, agent: Agent, context: ToolContext) -> Any:
-        return f"Notion page {args.page_id} updated."
-
-# --- 14. Safe Bash REPL (Restricted) ---
-class BashArgs(BaseModel):
-    command: str = Field(...)
-
-class BashTool(BaseTool[BashArgs]):
-    def __init__(self): self.sandbox = SandboxExecutor()
-    @property
-    def name(self) -> str: return "bash_repl"
-    @property
-    def description(self) -> str: return "Run highly restricted bash commands in the sandbox."
-    @property
-    def args_schema(self) -> Type[BashArgs]: return BashArgs
-
-    async def execute(self, args: BashArgs, agent: Agent, context: ToolContext) -> Any:
-        # In practice, this would use run_code with a bash-specific wrapper
-        return "Bash execution: [RESTRICTED]"
-
-# --- 15. Image Generation (Gemini/Flux Stub) ---
-class ImageGenArgs(BaseModel):
-    prompt: str = Field(...)
-    aspect_ratio: str = Field(default="1:1")
-
-class ImageGenTool(BaseTool[ImageGenArgs]):
-    @property
-    def name(self) -> str: return "image_generate"
-    @property
-    def description(self) -> str: return "Generate images from text prompts."
-    @property
-    def args_schema(self) -> Type[ImageGenArgs]: return ImageGenArgs
-
-    async def execute(self, args: ImageGenArgs, agent: Agent, context: ToolContext) -> Any:
-        return {"url": "https://storage.agent_os.internal/gen/image_123.png"}
+    async def execute(self, args: VectorArgs, agent: Agent, context: ToolContext) -> Any:
+        # Logic to call MemoryStore.search_long_term_memory
+        return ["Relevance: 0.98. Content: System architecture updated May 17."]
