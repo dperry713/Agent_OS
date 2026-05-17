@@ -13,6 +13,8 @@ from app.security.vault import vault_service
 from app.core.exceptions import ToolExecutionError, PolicyViolation
 from app.core.resilience import CircuitBreaker, RateLimiter
 
+from app.core.audit import audit_service
+
 # OpenTelemetry
 from opentelemetry import trace
 
@@ -28,21 +30,6 @@ class RuntimeEngine:
         self.circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
         self.rate_limiter = RateLimiter()
 
-    async def _log_audit(self, tenant_id: str, agent_id: str, task_id: str, action: str, details: dict):
-        """Persists a tamper-proof audit log entry."""
-        async with await get_db_session(tenant_id) as session:
-            import uuid
-            log_entry = DBAuditLog(
-                log_id=str(uuid.uuid4()),
-                tenant_id=tenant_id,
-                agent_id=agent_id,
-                task_id=task_id,
-                action=action,
-                details=details
-            )
-            session.add(log_entry)
-            await session.commit()
-
     @tracer.start_as_current_span("execute_task")
     async def execute_task(self, task: Task, agent: Agent, tenant: Tenant) -> Task:
         span = trace.get_current_span()
@@ -53,27 +40,31 @@ class RuntimeEngine:
         task.status = TaskStatus.RUNNING
         task.started_at = datetime.utcnow()
         
-        # Initial Audit
-        await self._log_audit(
-            tenant.tenant_id, agent.agent_id, task.task_id,
-            "task_started", {"tool": task.tool_name, "input_keys": list(task.input_data.keys())}
+        # Initial Audit (Signed)
+        await audit_service.log_event(
+            tenant.tenant_id, agent.agent_id, "task_started",
+            {"tool": task.tool_name, "input_keys": list(task.input_data.keys())},
+            task_id=task.task_id
         )
         
         try:
             # 1. Policy & Security Checks
             if not await self.policy_engine.validate_execution(tenant, agent, task.tool_name):
-                await self._log_audit(tenant.tenant_id, agent.agent_id, task.task_id, "policy_violation", {"tool": task.tool_name})
+                await audit_service.log_event(
+                    tenant.tenant_id, agent.agent_id, "policy_violation",
+                    {"tool": task.tool_name}, task_id=task.task_id
+                )
                 raise PolicyViolation(f"Access denied for tool: {task.tool_name}")
 
             # 2. Rate Limiting (Quota Enforcement)
             await self.rate_limiter.check_rate_limit(tenant.tenant_id)
 
-            # 2. Secret Injection (from OpenBao)
+            # 3. Secret Injection (from OpenBao)
             api_key = vault_service.get_llm_api_key(tenant.tenant_id, "general")
             if api_key:
                 task.input_data["_secret_key"] = api_key
 
-            # 3. Execution (with Circuit Breaker & Retry Policy)
+            # 4. Execution (with Circuit Breaker & Retry Policy)
             result = await self.circuit_breaker.call(
                 self._execute_with_retry, task, agent, tenant
             )
@@ -81,13 +72,19 @@ class RuntimeEngine:
             task.result = result
             task.status = TaskStatus.COMPLETED
             
-            await self._log_audit(tenant.tenant_id, agent.agent_id, task.task_id, "task_completed", {"tool": task.tool_name})
+            await audit_service.log_event(
+                tenant.tenant_id, agent.agent_id, "task_completed",
+                {"tool": task.tool_name}, task_id=task.task_id
+            )
             
         except Exception as e:
             logger.error(f"Task {task.task_id} failed: {str(e)}")
             task.status = TaskStatus.FAILED
             task.error = str(e)
-            await self._log_audit(tenant.tenant_id, agent.agent_id, task.task_id, "task_failed", {"error": str(e)})
+            await audit_service.log_event(
+                tenant.tenant_id, agent.agent_id, "task_failed",
+                {"error": str(e)}, task_id=task.task_id
+            )
         
         task.finished_at = datetime.utcnow()
         return task

@@ -1,8 +1,10 @@
-version: '3.8'
+version: '3.9'
 
 services:
   api:
     build: .
+    # gVisor Enforcment (requires runsc on host)
+    runtime: runsc
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -12,88 +14,84 @@ services:
       nofile:
         soft: 65535
         hard: 65535
+    # Immutable runtime
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
       - VAULT_ADDR=http://openbao:8200
       - VAULT_ROLE_ID=${VAULT_ROLE_ID}
       - VAULT_SECRET_ID=${VAULT_SECRET_ID}
       - VALKEY_URL=redis://valkey:6379/0
-      - RABBITMQ_URL=pyamqp://guest:guest@rabbitmq:5672//
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - RABBITMQ_URL=pyamqp://${RABBIT_USER}:${RABBIT_PASS}@rabbitmq:5672//
     depends_on:
-      - postgres
-      - openbao
-      - jaeger
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     ports:
       - "8000:8000"
-    restart: unless-stopped
-
-  worker:
-    build: .
-    command: ["celery", "-A", "app.kernel.celery_app", "worker", "--loglevel=info"]
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 65535
-        hard: 65535
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
-      - VAULT_ADDR=http://openbao:8200
-      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
-      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
-      - VALKEY_URL=redis://valkey:6379/0
-      - RABBITMQ_URL=pyamqp://guest:guest@rabbitmq:5672//
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
-    depends_on:
-      - postgres
-      - openbao
-      - jaeger
-    restart: unless-stopped
+    networks:
+      - agent_net
 
   openbao:
     image: openbao/openbao:latest
-    environment:
-      - BAO_DEV_ROOT_TOKEN_ID=root # Fallback for dev, production uses config.hcl
+    command: ["server", "-config=/vault/config/config.hcl"]
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
     cap_add:
       - IPC_LOCK
-    ports:
-      - "8200:8200"
+    volumes:
+      - ./vault/config:/vault/config:ro
+      - vault_data:/vault/file
+    networks:
+      - agent_net
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_PASS}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agent_net
 
   postgres:
     image: postgres:15-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
+      - POSTGRES_DB=agent_os
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agent_net
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   valkey:
     image: valkey/valkey:7.2
     security_opt:
       - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - agent_net
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+networks:
+  agent_net:
+    driver: bridge
+    enable_ipv6: false
 
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686" # UI
-      - "4317:4317"  # OTLP gRPC
+volumes:
+  postgres_data:
+  vault_data:

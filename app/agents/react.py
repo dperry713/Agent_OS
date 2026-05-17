@@ -66,13 +66,19 @@ class ReActLoop(BaseAgentLoop):
 
                 # 4. Human-In-The-Loop (HITL) Gate
                 if self._requires_approval(current_step.tool_name, state):
+                    logger.info("hitl_approval_required", tool=current_step.tool_name, task_id=task.task_id)
                     state.metadata["hitl_status"] = "pending"
                     state.metadata["pending_tool"] = current_step.tool_name
+                    state.status = TaskStatus.AWAITING_INPUT
                     state.steps.append(current_step)
                     await self.save_checkpoint(state)
-                    task.status = TaskStatus.AWAITING_INPUT
-                    yield AgentStep(thought=f"Action '{current_step.tool_name}' requires tenant approval.")
-                    break
+                    
+                    # Notify subscribers via stream
+                    await self.stream_step(task.task_id, AgentStep(
+                        thought=f"Action '{current_step.tool_name}' requires tenant approval.",
+                        timestamp=datetime.utcnow()
+                    ))
+                    return # Exit run() for this task, will resume after approval
 
                 # 5. Tool Execution (Secure Sandbox + Policy)
                 try:

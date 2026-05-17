@@ -16,10 +16,8 @@ spec:
       labels:
         app: agent-os
         component: worker
-      annotations:
-        # AppArmor profile for gVisor
-        container.apparmor.security.beta.kubernetes.io/worker: runtime/default
     spec:
+      # Mandatory: Use gVisor for agent task isolation
       runtimeClassName: gvisor
       # Pod-level security context
       securityContext:
@@ -32,7 +30,7 @@ spec:
       containers:
       - name: worker
         image: agent-os:latest
-        command: ["celery", "-A", "app.kernel.celery_app", "worker", "--loglevel=info", "--pool=threads", "--concurrency=10"]
+        command: ["celery", "-A", "app.kernel.celery_app", "worker", "--loglevel=info"]
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -52,11 +50,6 @@ spec:
             secretKeyRef:
               name: agent-os-secrets
               key: rabbitmq-url
-        - name: VALKEY_URL
-          valueFrom:
-            secretKeyRef:
-              name: agent-os-secrets
-              key: valkey-url
         - name: VAULT_ADDR
           value: "http://openbao.default.svc.cluster.local:8200"
         - name: VAULT_ROLE_ID

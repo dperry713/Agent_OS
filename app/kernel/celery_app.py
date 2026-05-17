@@ -44,6 +44,18 @@ app.conf.update(
     # Timeouts
     task_time_limit=300, # 5 minutes hard limit
     task_soft_time_limit=240, # 4 minutes soft limit
+
+    # Advanced Retry Policy
+    task_publish_retry=True,
+    task_publish_retry_policy={
+        'max_retries': 5,
+        'interval_start': 0.2,
+        'interval_step': 0.2,
+        'interval_max': 1,
+    },
+    
+    # Task Revocation/Cancellation support
+    worker_cancel_long_running_tasks_on_connection_loss=True,
 )
 
 # OpenTelemetry Instrumentation

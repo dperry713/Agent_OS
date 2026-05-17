@@ -44,10 +44,9 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
         result = await session.execute(select(DBTask).where(DBTask.task_id == task_id))
         existing_task = result.scalar_one_or_none()
         
-        if existing_task:
-            if existing_task.status in ["completed", "running"]:
-                logger.warning("task_already_processed", status=existing_task.status)
-                return existing_task.result
+        if existing_task and existing_task.status in ["completed", "failed"]:
+            logger.warning("task_already_terminal", status=existing_task.status)
+            return existing_task.result
 
         if not existing_task:
             db_task = DBTask(
@@ -61,8 +60,15 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
                 version=1
             )
             session.add(db_task)
-            await session.commit()
-        else:
+            try:
+                await session.commit()
+            except Exception:
+                await session.rollback()
+                # Re-fetch if it was created by another worker in the meantime
+                result = await session.execute(select(DBTask).where(DBTask.task_id == task_id))
+                existing_task = result.scalar_one()
+        
+        if existing_task and existing_task.status == "queued":
             # Atomic update to RUNNING with version check
             result = await session.execute(
                 update(DBTask)
@@ -73,6 +79,9 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
             if result.rowcount == 0:
                 raise Exception("Optimistic locking failure: Task updated by another worker.")
             await session.commit()
+        elif existing_task and existing_task.status == "running":
+            logger.warning("task_already_running", task_id=task_id)
+            return existing_task.result
 
         # 2. Fetch Context
         tenant = await system_registry.get_tenant(tenant_id)
@@ -102,6 +111,7 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
                 )
             )
             await session.commit()
+            logger.info("task_execution_completed", status=updated_task.status)
             return updated_task.dict()
 
         except Exception as e:
