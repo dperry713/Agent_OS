@@ -1,62 +1,69 @@
-# Agent Runtime OS (Enterprise Edition)
+# Agent_OS: Enterprise-Grade Agent Runtime OS
 
-A production-grade, horizontally scalable, multi-tenant deterministic infrastructure platform for agent execution.
+Agent_OS is a production-hardened, multi-tenant, and highly isolated execution environment for autonomous AI agents. It provides a secure "OS" layer that handles compute isolation, tenant data sovereignty, and robust tool execution.
 
-## Enterprise Architecture
+## 🚀 Key Features
 
-- **Control Plane**: Stateless FastAPI REST API. Handles tenant/agent management and task ingestion.
-- **Worker Plane**: Distributed Celery workers running on a gVisor runtime for hard compute isolation.
-- **Message Broker**: RabbitMQ (Apache 2.0) for durable task queueing.
-- **State Layer**: 
-    - **PostgreSQL**: Primary persistent storage with **Row-Level Security (RLS)** for strict tenant data isolation.
-    - **Valkey**: Distributed cache for session state and rate limiting.
-- **Security**: 
-    - **OpenBao**: Dynamic secret management (LLM API keys).
-    - **gVisor**: Sandbox runtime for agent tool execution.
-    - **K8s Network Policies**: Egress lockdown for worker pods.
-- **Observability**: OpenTelemetry instrumentation with distributed tracing.
-- **Scaling**: KEDA event-driven autoscaling based on RabbitMQ queue length.
+- **Bulletproof Isolation**: Hard compute isolation via **gVisor** user-space kernels.
+- **Multi-Tenant Architecture**: Strict data isolation using **PostgreSQL Row-Level Security (RLS)**.
+- **Dynamic Security**: Ephemeral secret injection from **OpenBao (Vault)**; secrets never touch the database.
+- **Distributed Execution**: Scalable task processing via **Celery + RabbitMQ**.
+- **Robust Tool System**: 20+ production-grade tools with strict Pydantic validation and sandboxing.
+- **Advanced Orchestration**: Native support for **ReAct**, **Plan-and-Execute**, and **Supervisor** patterns.
+- **Observability**: End-to-end tracing with **OpenTelemetry** and real-time monitoring via **Prometheus**.
 
-## Getting Started
+## 🏗 Architecture
 
-### Prerequisites
-
-- Docker & Docker Compose
-- (Optional) Kubernetes cluster (RKE2 recommended) with gVisor and KEDA.
-
-### Running Locally (Docker Compose)
-
-1. Build and start the entire stack:
-   ```bash
-   docker-compose up --build
-   ```
-
-2. Initialize the Database and OpenBao secrets:
-   ```bash
-   docker-compose exec api python scripts/initialize_enterprise.py
-   ```
-
-3. The API is available at `http://localhost:8000`.
-
-### Running Tests
-
-```bash
-pytest tests/
+```text
+Control Plane (FastAPI) <---> Message Broker (RabbitMQ) <---> Worker Plane (Celery + gVisor)
+      |                                                        |
+      +--> State Layer (Postgres RLS + pgvector)               +--> Sandbox (POSIX Limits)
+      +--> Secret Layer (OpenBao)                              +--> Tool Registry
+      +--> Cache Layer (Valkey)                                +--> Policy Engine
 ```
 
-### Kubernetes Deployment
+## 🛠 Installation
 
-The production-ready manifests are located in the `k8s/` directory.
+### Prerequisites
+- Docker & Docker Compose
+- (Optional) Kubernetes with gVisor support
 
-1. Create the necessary secrets (`agent-os-secrets`).
-2. Apply the manifests:
-   ```bash
-   kubectl apply -f k8s/
-   ```
+### Local Development
+```bash
+docker-compose up --build
+```
 
-## Multi-Tenancy Isolation
+## 📖 API Documentation
 
-- **Compute**: Every agent task runs in a gVisor sandbox.
-- **Data**: Row-Level Security (RLS) in PostgreSQL ensures a tenant can only see its own rows.
-- **Secrets**: Dynamic injection from OpenBao ensures secrets never persist in the primary DB.
-- **Network**: Strict egress policies restrict worker communication to allowlisted endpoints.
+### Submit a Task
+`POST /tasks/{tenant_id}/{agent_id}`
+Request Body:
+```json
+{
+  "tool_name": "python_repl",
+  "input_data": {
+    "code": "print('Hello from Agent_OS')"
+  }
+}
+```
+
+### Stream Task Events (WebSocket)
+`WS /tasks/{task_id}/stream`
+Streams real-time `AgentStep` chunks as the reasoning loop progresses.
+
+## 🛡 Security Model
+
+1. **Jailed Compute**: Every worker runs as a non-privileged user in a gVisor microVM.
+2. **Resource Quotas**: Strict POSIX limits on CPU, memory, file descriptors, and disk usage.
+3. **Data Sovereignty**: Tenant data is logically isolated at the database level; one tenant's agent can never query another tenant's rows.
+4. **Egress Lockdown**: Strict `NetworkPolicy` rules prevent unauthorized data exfiltration.
+
+## 📜 Roadmap
+
+- [x] v1.0 Core Architecture (RLS, Celery, gVisor)
+- [x] Robust ReAct & Planning Loops
+- [x] 15+ Production Tools
+- [x] OpenTelemetry & Prometheus Integration
+- [ ] Bring-Your-Own-Compute (BYOC) Support
+- [ ] Enterprise Web Console (HTMX)
+- [ ] OPA-based Policy Language Integration
