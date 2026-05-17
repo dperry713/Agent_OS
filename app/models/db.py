@@ -2,6 +2,11 @@ from sqlalchemy import Column, String, Integer, JSON, DateTime, ForeignKey, Text
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 
+try:
+    from pgvector.sqlalchemy import Vector
+except ImportError:
+    Vector = String # Fallback for mock if pgvector missing
+
 Base = declarative_base()
 
 class DBTenant(Base):
@@ -11,6 +16,7 @@ class DBTenant(Base):
     max_agents = Column(Integer, default=10)
     max_concurrent_tasks = Column(Integer, default=5)
     blocked_tools = Column(JSON, default=[])
+    custom_routing_key = Column(String, nullable=True) # BYOC Routing
 
 class DBAgent(Base):
     __tablename__ = 'agents'
@@ -39,3 +45,12 @@ class DBMemory(Base):
     agent_id = Column(String, ForeignKey('agents.agent_id'), primary_key=True)
     key = Column(String, primary_key=True)
     value = Column(Text, nullable=False)
+
+class DBVectorMemory(Base):
+    __tablename__ = 'vector_memory'
+    memory_id = Column(String, primary_key=True)
+    tenant_id = Column(String, ForeignKey('tenants.tenant_id'), nullable=False)
+    agent_id = Column(String, ForeignKey('agents.agent_id'), nullable=False)
+    content = Column(Text, nullable=False)
+    embedding = Column(Vector(1536), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

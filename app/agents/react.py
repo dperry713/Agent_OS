@@ -59,6 +59,7 @@ class ReActLoop(BaseAgentLoop):
 
             state.steps.append(step)
             await self.save_checkpoint(state)
+            await self.stream_step(step) # Real-time streaming
             yield step
 
             if "final_answer" in str(step.tool_output):

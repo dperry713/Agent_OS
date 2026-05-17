@@ -16,6 +16,7 @@ class Tenant(BaseModel):
     max_agents: int = 10
     max_concurrent_tasks: int = 5
     blocked_tools: List[str] = []
+    custom_routing_key: Optional[str] = None
 
 class Agent(BaseModel):
     agent_id: str

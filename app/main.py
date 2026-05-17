@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect
 from typing import List, Dict, Any
 from app.models.schemas import Tenant, Agent, Task
 from app.models.db import DBTask
@@ -6,8 +6,10 @@ from app.kernel.registry import system_registry
 from app.kernel.tasks import execute_agent_task
 from app.core.db import get_db_session
 from app.core.logging import setup_logging
+from app.core.config import settings
 from sqlalchemy import select
 import uuid
+import valkey.asyncio as valkey_async
 from contextlib import asynccontextmanager
 
 # OpenTelemetry Imports
@@ -64,13 +66,41 @@ async def submit_task(
     tool_name: str, 
     input_data: Dict[str, Any]
 ):
+    tenant = await system_registry.get_tenant(tenant_id)
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+        
     # Construct Task ID
     task_id = str(uuid.uuid4())
 
-    # Submit to Celery
-    execute_agent_task.delay(task_id, tenant_id, agent_id, tool_name, input_data)
+    # BYOC Routing: Use custom routing key if provided by tenant
+    routing_key = tenant.custom_routing_key or "celery"
+
+    # Submit to Celery with dynamic routing
+    execute_agent_task.apply_async(
+        args=[task_id, tenant_id, agent_id, tool_name, input_data],
+        queue=routing_key
+    )
     
-    return {"task_id": task_id, "status": "queued"}
+    return {"task_id": task_id, "status": "queued", "routing_key": routing_key}
+
+@app.websocket("/tasks/{task_id}/stream")
+async def stream_task_events(websocket: WebSocket, task_id: str):
+    """Real-time streaming of AgentStep chunks via WebSocket."""
+    await websocket.accept()
+    client = valkey_async.from_url(settings.VALKEY_URL)
+    pubsub = client.pubsub()
+    await pubsub.subscribe(f"task_stream:{task_id}")
+    
+    try:
+        async for message in pubsub.listen():
+            if message['type'] == 'message':
+                await websocket.send_text(message['data'].decode('utf-8'))
+    except WebSocketDisconnect:
+        pass
+    finally:
+        await pubsub.unsubscribe(f"task_stream:{task_id}")
+        await client.close()
 
 @app.get("/tasks/{task_id}", response_model=Task)
 async def get_task(task_id: str, tenant_id: str):

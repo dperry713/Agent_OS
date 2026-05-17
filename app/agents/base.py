@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 from app.models.schemas import Task, Agent, Tenant, TaskStatus
 from app.tools.context import ToolContext
 from datetime import datetime
+import valkey.asyncio as valkey_async
+from app.core.config import settings
 import logging
 import json
 
@@ -43,6 +45,12 @@ class BaseAgentLoop(ABC):
         Yields steps for streaming support.
         """
         pass
+
+    async def stream_step(self, step: AgentStep):
+        """Publishes the current step to Valkey for real-time streaming."""
+        client = valkey_async.from_url(settings.VALKEY_URL)
+        await client.publish(f"task_stream:{self.agent.task_id}", step.model_dump_json())
+        await client.close()
 
     async def save_checkpoint(self, state: AgentState):
         """Saves the current agent state to Valkey/Postgres for recovery or HITL."""
