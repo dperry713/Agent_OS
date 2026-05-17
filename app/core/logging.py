@@ -3,15 +3,23 @@ import json
 import sys
 from datetime import datetime
 from typing import Any, Dict
+from opentelemetry import trace
 
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
+        span = trace.get_current_span()
+        span_context = span.get_span_context()
+        
         log_record = {
             "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
             "name": record.name,
             "message": record.getMessage(),
+            "trace_id": format(span_context.trace_id, "032x") if span_context.is_valid else None,
+            "span_id": format(span_context.span_id, "016x") if span_context.is_valid else None,
         }
+        
+        # Merge extra attributes (tenant_id, agent_id, etc.)
         if hasattr(record, "tenant_id"):
             log_record["tenant_id"] = record.tenant_id
         if hasattr(record, "agent_id"):
@@ -25,12 +33,16 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(log_record)
 
 def setup_logging():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    # Remove existing handlers to avoid duplicates
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+        
+    root_logger.setLevel(logging.INFO)
     
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(JsonFormatter())
-    logger.addHandler(handler)
+    root_logger.addHandler(handler)
 
 def get_audit_logger(name: str):
     return logging.getLogger(f"audit.{name}")

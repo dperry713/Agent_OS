@@ -1,0 +1,35 @@
+[project]
+name = "agent_os"
+version = "1.0.0"
+description = "Enterprise-grade Agent Runtime OS"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic>=2.0",
+    "pydantic-settings",
+    "sqlalchemy",
+    "psycopg2-binary",
+    "alembic",
+    "valkey",
+    "celery",
+    "pika",
+    "hvac",
+    "httpx",
+    "opentelemetry-api",
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-otlp",
+    "opentelemetry-instrumentation-fastapi",
+    "opentelemetry-instrumentation-celery",
+    "pgvector"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+[tool.black]
+line-length = 100

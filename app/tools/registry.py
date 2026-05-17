@@ -1,6 +1,9 @@
 from typing import Dict, Optional, List, Any
 from app.tools.base import BaseTool
-from app.tools.builtins import SearchTool, CodeExecTool, HttpTool, FileTool
+from app.tools.builtins import (
+    SearchTool, CodeExecTool, HttpTool, FileTool,
+    GitStatusTool, SqlQueryTool, SlackNotifyTool, VectorSearchTool
+)
 
 class ToolRegistry:
     def __init__(self):
@@ -12,6 +15,10 @@ class ToolRegistry:
         self.register(CodeExecTool())
         self.register(HttpTool())
         self.register(FileTool())
+        self.register(GitStatusTool())
+        self.register(SqlQueryTool())
+        self.register(SlackNotifyTool())
+        self.register(VectorSearchTool())
 
     def register(self, tool: BaseTool):
         self._tools[tool.name] = tool
