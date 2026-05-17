@@ -17,27 +17,30 @@ spec:
         app: agent-os
         component: worker
       annotations:
-        # Optimization for gVisor (if using certain CSI drivers)
+        # AppArmor profile for gVisor
         container.apparmor.security.beta.kubernetes.io/worker: runtime/default
     spec:
       runtimeClassName: gvisor
+      # Pod-level security context
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 2000
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
       containers:
       - name: worker
         image: agent-os:latest
-        command: ["celery", "-A", "app.kernel.celery_app", "worker", "--loglevel=info"]
+        command: ["celery", "-A", "app.kernel.celery_app", "worker", "--loglevel=info", "--pool=threads", "--concurrency=10"]
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
             - ALL
           privileged: false
-          readOnlyRootFilesystem: true # Enforce immutable runtime
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
         env:
         - name: DATABASE_URL
           valueFrom:
@@ -56,21 +59,26 @@ spec:
               key: valkey-url
         - name: VAULT_ADDR
           value: "http://openbao.default.svc.cluster.local:8200"
-        - name: VAULT_TOKEN
+        - name: VAULT_ROLE_ID
           valueFrom:
             secretKeyRef:
               name: agent-os-secrets
-              key: vault-token
+              key: vault-role-id
+        - name: VAULT_SECRET_ID
+          valueFrom:
+            secretKeyRef:
+              name: agent-os-secrets
+              key: vault-secret-id
         volumeMounts:
         - name: tmp
           mountPath: /tmp
         resources:
           limits:
+            cpu: "2"
+            memory: "2Gi"
+          requests:
             cpu: "1"
             memory: "1Gi"
-          requests:
-            cpu: "500m"
-            memory: "512Mi"
       volumes:
       - name: tmp
         emptyDir: {}

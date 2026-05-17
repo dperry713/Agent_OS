@@ -11,13 +11,13 @@ spec:
   policyTypes:
   - Egress
   egress:
-  # Allow DNS
+  # 1. Allow DNS for internal/external resolution
   - ports:
     - port: 53
       protocol: UDP
     - port: 53
       protocol: TCP
-  # Allow internal services (Postgres, Valkey, RabbitMQ, OpenBao)
+  # 2. Allow communication to core infrastructure in the same namespace
   - to:
     - podSelector:
         matchLabels:
@@ -31,10 +31,23 @@ spec:
     - podSelector:
         matchLabels:
           app: openbao
-  # Allow external LLM APIs (Example: Google Gemini)
+  # 3. Allow Egress to Prometheus/Otel-Collector for observability
+  - to:
+    - podSelector:
+        matchLabels:
+          app: otel-collector
+    ports:
+    - port: 4317
+      protocol: TCP
+  # 4. Strictly controlled external egress for tools (e.g., Tavily, OpenAI, Anthropic)
+  # In a high-security environment, use an Egress Proxy (like Istio Egress Gateway)
   - to:
     - ipBlock:
-        cidr: 0.0.0.0/0 # In production, restrict to specific IP ranges if known
+        cidr: 0.0.0.0/0
+        except:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
     ports:
     - port: 443
       protocol: TCP

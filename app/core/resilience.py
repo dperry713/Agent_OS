@@ -11,6 +11,46 @@ class CircuitState(str, Enum):
     OPEN = "open"
     HALF_OPEN = "half_open"
 
+import asyncio
+import time
+from typing import Callable, Any, Optional
+import valkey.asyncio as valkey
+from app.core.config import settings
+from app.core.exceptions import RateLimitExceeded
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
+
+class RateLimiter:
+    """Distributed Rate Limiter using Valkey/Redis."""
+    
+    def __init__(self):
+        self.valkey_url = settings.VALKEY_URL
+
+    async def check_rate_limit(self, tenant_id: str, limit: int = 100, window: int = 60):
+        """
+        Enforces a sliding window rate limit.
+        Default: 100 requests per 60 seconds.
+        """
+        client = valkey.from_url(self.valkey_url)
+        now = time.time()
+        key = f"rate_limit:{tenant_id}"
+        
+        try:
+            # Use a sorted set for sliding window
+            pipe = client.pipeline()
+            pipe.zremrangebyscore(key, 0, now - window)
+            pipe.zadd(key, {str(now): now})
+            pipe.zcard(key)
+            pipe.expire(key, window + 1)
+            _, _, count, _ = await pipe.execute()
+            
+            if count > limit:
+                logger.warning("rate_limit_exceeded", tenant_id=tenant_id, count=count)
+                raise RateLimitExceeded(f"Rate limit exceeded: {limit} requests per {window}s")
+        finally:
+            await client.close()
+
 class CircuitBreaker:
     """
     Simple async-compatible Circuit Breaker to prevent cascading failures.

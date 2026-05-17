@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     # Security (OpenBao / Vault)
     VAULT_ADDR: str = "http://openbao.default.svc.cluster.local:8200"
     VAULT_TOKEN: Optional[str] = None
+    VAULT_ROLE_ID: Optional[str] = None
+    VAULT_SECRET_ID: Optional[str] = None
     JWT_SECRET: str = "super-secret-key-change-in-prod"
     
     # Observability

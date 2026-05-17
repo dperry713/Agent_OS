@@ -60,7 +60,7 @@ class ReActLoop(BaseAgentLoop):
                     current_step.observation = "Task completed."
                     state.steps.append(current_step)
                     await self.save_checkpoint(state)
-                    await self.stream_step(current_step)
+                    await self.stream_step(task.task_id, current_step)
                     yield current_step
                     break
 
@@ -102,7 +102,8 @@ class ReActLoop(BaseAgentLoop):
                 # 6. Checkpoint & Stream
                 state.steps.append(current_step)
                 await self.save_checkpoint(state)
-                await self.stream_step(current_step)
+                await self.stream_step(task.task_id, current_step)
+
                 yield current_step
 
                 # 7. Self-Correction Trigger

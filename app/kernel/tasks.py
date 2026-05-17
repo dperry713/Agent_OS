@@ -21,18 +21,37 @@ runtime_engine = RuntimeEngine(policy_engine, memory_store)
 async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_name: str, input_data: dict):
     # RLS is handled by get_db_session(tenant_id)
     async with await get_db_session(tenant_id) as session:
-        # 1. Initialize Task Record
-        db_task = DBTask(
-            task_id=task_id,
-            tenant_id=tenant_id,
-            agent_id=agent_id,
-            tool_name=tool_name,
-            input_data=input_data,
-            status=TaskStatus.RUNNING,
-            started_at=datetime.utcnow()
-        )
-        session.add(db_task)
-        await session.commit()
+        # 1. Initialize Task Record with Idempotency Check
+        existing_task = await session.get(DBTask, task_id)
+        if existing_task:
+            if existing_task.status in [TaskStatus.COMPLETED, TaskStatus.RUNNING]:
+                logger.warning(f"Task {task_id} already in state {existing_task.status}. Skipping.")
+                return existing_task.result
+
+        if not existing_task:
+            db_task = DBTask(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                agent_id=agent_id,
+                tool_name=tool_name,
+                input_data=input_data,
+                status=TaskStatus.RUNNING,
+                started_at=datetime.utcnow(),
+                version=1
+            )
+            session.add(db_task)
+            await session.commit()
+        else:
+            # Atomic update to RUNNING with version check
+            result = await session.execute(
+                update(DBTask)
+                .where(DBTask.task_id == task_id)
+                .where(DBTask.version == existing_task.version)
+                .values(status=TaskStatus.RUNNING, started_at=datetime.utcnow(), version=DBTask.version + 1)
+            )
+            if result.rowcount == 0:
+                raise Exception("Optimistic locking failure: Task updated by another worker.")
+            await session.commit()
 
         # 2. Fetch Context
         tenant = await system_registry.get_tenant(tenant_id)
@@ -46,15 +65,18 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
             )
             updated_task = await runtime_engine.execute_task(task_obj, agent, tenant)
             
-            # 4. Final Persist
+            # 4. Final Persist with version increment
+            current_task = await session.get(DBTask, task_id)
             await session.execute(
                 update(DBTask)
                 .where(DBTask.task_id == task_id)
+                .where(DBTask.version == current_task.version)
                 .values(
                     status=updated_task.status,
                     result=updated_task.result,
                     error=updated_task.error,
-                    finished_at=updated_task.finished_at
+                    finished_at=updated_task.finished_at,
+                    version=DBTask.version + 1
                 )
             )
             await session.commit()
@@ -62,10 +84,17 @@ async def _execute_task_async(task_id: str, tenant_id: str, agent_id: str, tool_
 
         except Exception as e:
             logger.exception(f"Fatal error in task {task_id}")
+            current_task = await session.get(DBTask, task_id)
             await session.execute(
                 update(DBTask)
                 .where(DBTask.task_id == task_id)
-                .values(status=TaskStatus.FAILED, error=str(e), finished_at=datetime.utcnow())
+                .where(DBTask.version == current_task.version)
+                .values(
+                    status=TaskStatus.FAILED, 
+                    error=str(e), 
+                    finished_at=datetime.utcnow(),
+                    version=DBTask.version + 1
+                )
             )
             await session.commit()
             raise

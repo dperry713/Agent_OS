@@ -41,6 +41,7 @@ class DBTask(Base, TenantAwareMixin):
     tool_name = Column(String, nullable=False)
     input_data = Column(JSON, nullable=False)
     status = Column(String, default="queued", index=True)
+    version = Column(Integer, default=1, nullable=False) # Optimistic Locking
     result = Column(JSON, nullable=True)
     error = Column(Text, nullable=True)
     started_at = Column(DateTime, nullable=True)
@@ -74,3 +75,13 @@ class DBUsageMetric(Base, TenantAwareMixin):
     task_id = Column(String, nullable=False)
     tokens_used = Column(Integer, default=0)
     cost = Column(Integer, default=0) # In milli-cents
+
+class DBSemanticCache(Base):
+    __tablename__ = 'semantic_cache'
+    cache_id = Column(String, primary_key=True)
+    tenant_id = Column(String, nullable=False, index=True)
+    query_text = Column(Text, nullable=False)
+    query_embedding = Column(Vector(1536), nullable=False)
+    result_data = Column(JSON, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)

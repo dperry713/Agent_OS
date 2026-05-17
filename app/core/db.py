@@ -15,6 +15,10 @@ async def get_db_session(tenant_id: Optional[str] = None) -> AsyncSession:
     """
     session = AsyncSessionLocal()
     if tenant_id:
-        # Set tenant context for RLS
-        await session.execute(text(f"SET app.current_tenant = '{tenant_id}'"))
+        # Set tenant context for RLS using transaction-local configuration
+        # This prevents cross-tenant data leakage and SQL injection
+        await session.execute(
+            text("SELECT set_config('app.current_tenant', :tenant, true)"),
+            {"tenant": tenant_id}
+        )
     return session

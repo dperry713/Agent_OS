@@ -50,14 +50,14 @@ class BaseAgentLoop(ABC):
         """
         pass
 
-    async def stream_step(self, step: AgentStep):
+    async def stream_step(self, task_id: str, step: AgentStep):
         """Publishes progress chunks to Valkey for WebSocket subscribers."""
         try:
             client = valkey_async.from_url(settings.VALKEY_URL)
-            await client.publish(f"task_stream:{self.agent.agent_id}", step.model_dump_json())
+            await client.publish(f"task_stream:{task_id}", step.model_dump_json())
             await client.close()
         except Exception as e:
-            logger.warning(f"Streaming failed: {str(e)}")
+            logger.warning(f"Streaming failed for task {task_id}: {str(e)}")
 
     async def save_checkpoint(self, state: AgentState):
         """Persists intermediate state to the tenant's isolated state layer."""

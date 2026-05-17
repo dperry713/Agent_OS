@@ -1,7 +1,8 @@
 from typing import Optional, List
 from app.core.db import get_db_session
-from app.models.db import DBMemory, DBVectorMemory
-from sqlalchemy import select
+from app.models.db import DBMemory, DBVectorMemory, DBSemanticCache
+from sqlalchemy import select, func
+from datetime import datetime
 import uuid
 
 class MemoryStore:
@@ -52,3 +53,43 @@ class MemoryStore:
                 .limit(limit)
             )
             return [m.content for m in result.scalars().all()]
+
+class SemanticCacheStore:
+    """
+    Implements high-performance semantic caching using pgvector.
+    Reduces redundant tool execution and LLM costs.
+    """
+    
+    async def get_cached_result(self, tenant_id: str, query_embedding: List[float], threshold: float = 0.05) -> Optional[dict]:
+        """
+        Retrieves a cached result if a semantically similar query exists.
+        Threshold: 0.05 (very high similarity).
+        """
+        async with await get_db_session(tenant_id) as session:
+            result = await session.execute(
+                select(DBSemanticCache)
+                .order_by(DBSemanticCache.query_embedding.cosine_distance(query_embedding))
+                .limit(1)
+            )
+            cache_entry = result.scalar_one_or_none()
+            
+            if cache_entry:
+                return cache_entry.result_data
+            return None
+
+    async def set_cache(self, tenant_id: str, query_text: str, query_embedding: List[float], result_data: dict, ttl_hours: int = 24):
+        """Stores a result in the semantic cache."""
+        async with await get_db_session(tenant_id) as session:
+            from datetime import timedelta
+            expires_at = datetime.utcnow() + timedelta(hours=ttl_hours)
+            
+            cache_entry = DBSemanticCache(
+                cache_id=str(uuid.uuid4()),
+                tenant_id=tenant_id,
+                query_text=query_text,
+                query_embedding=query_embedding,
+                result_data=result_data,
+                expires_at=expires_at
+            )
+            session.add(cache_entry)
+            await session.commit()

@@ -5,12 +5,36 @@ metadata:
   namespace: default
 spec:
   scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
     name: agent-os-worker
-  minReplicaCount: 0
-  maxReplicaCount: 100
+  minReplicaCount: 1
+  maxReplicaCount: 50
+  cooldownPeriod: 300
+  pollingInterval: 30
   triggers:
   - type: rabbitmq
     metadata:
       queueName: celery
-      queueLength: "5"
-      host: RABBITMQ_URL # This would typically be a secret reference in a real setup
+      queueLength: "5" # Scale up if more than 5 tasks are queued
+      hostFromEnv: RABBITMQ_URL
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent-os-api-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agent-os-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: AverageUtilization
+        averageUtilization: 70

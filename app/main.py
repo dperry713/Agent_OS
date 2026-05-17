@@ -19,16 +19,21 @@ from app.core.db import get_db_session
 from opentelemetry import trace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
-logger = logging.getLogger(__name__)
+from app.core.exceptions import AgentOSException, PolicyViolation, SandboxError, ToolExecutionError
+from app.core.logging import setup_logging, get_logger
+
+logger = get_logger(__name__)
+
+# ... (rest of imports unchanged)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialization
     setup_logging()
-    logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
+    logger.info("starting_agent_os", version=settings.VERSION)
     yield
     # Cleanup
-    logger.info(f"Shutting down {settings.PROJECT_NAME}")
+    logger.info("shutting_down_agent_os")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -40,6 +45,17 @@ app = FastAPI(
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 @app.middleware("http")
+async def tenant_context_middleware(request: Request, call_next):
+    """
+    Extracts tenant_id from request headers or auth token and
+    attaches it to the request state for downstream use in DB sessions.
+    """
+    tenant_id = request.headers.get("X-Tenant-ID")
+    request.state.tenant_id = tenant_id
+    response = await call_next(request)
+    return response
+
+@app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
@@ -47,12 +63,37 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
-# Exception Handlers
 @app.exception_handler(AgentOSException)
 async def agent_os_exception_handler(request: Request, exc: AgentOSException):
+    # Log internal details but return clean message
+    logger.error("agent_os_error", 
+                 path=request.url.path, 
+                 error_type=exc.__class__.__name__, 
+                 message=str(exc), 
+                 details=exc.details)
+    
+    status_code = 400
+    if isinstance(exc, PolicyViolation): status_code = 403
+    
     return JSONResponse(
-        status_code=400,
-        content={"message": str(exc), "details": exc.details},
+        status_code=status_code,
+        content={
+            "error": exc.__class__.__name__,
+            "message": str(exc),
+            "request_id": request.headers.get("X-Request-ID")
+        },
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.exception("unhandled_exception", path=request.url.path, error=str(exc))
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "InternalServerError",
+            "message": "An unexpected error occurred. Please contact support.",
+            "request_id": request.headers.get("X-Request-ID")
+        },
     )
 
 from app.core.metrics import metrics
@@ -83,15 +124,63 @@ async def submit_task(tenant_id: str, agent_id: str, tool_name: str, input_data:
     
     return {"task_id": task_id, "status": "queued"}
 
+import valkey.asyncio as valkey_async
+from app.models.db import DBTask
+from sqlalchemy import select, update
+
+# ... (rest of imports unchanged)
+
+@app.post("/tasks/{task_id}/approve")
+async def approve_task(task_id: str):
+    """
+    Approves a task that is AWAITING_INPUT.
+    Updates the checkpoint to 'approved' and re-queues the execution.
+    """
+    async with await get_db_session() as session:
+        result = await session.execute(select(DBTask).filter_by(task_id=task_id))
+        db_task = result.scalar_one_or_none()
+        if not db_task:
+            raise HTTPException(status_code=404, detail="Task not found")
+        
+        # 1. Load and Update Checkpoint
+        # We need tenant context for this
+        async with await get_db_session(db_task.tenant_id) as tenant_session:
+            from app.memory.store import MemoryStore
+            from app.agents.base import AgentState
+            store = MemoryStore()
+            checkpoint_json = await store.get(db_task.tenant_id, db_task.agent_id, f"checkpoint:{task_id}")
+            if not checkpoint_json:
+                raise HTTPException(status_code=400, detail="No checkpoint found for task")
+            
+            state = AgentState.model_validate_json(checkpoint_json)
+            state.metadata["hitl_status"] = "approved"
+            await store.set(db_task.tenant_id, db_task.agent_id, f"checkpoint:{task_id}", state.model_dump_json())
+
+        # 2. Re-queue Celery Task
+        execute_agent_task.apply_async(
+            args=[task_id, db_task.tenant_id, db_task.agent_id, db_task.tool_name, db_task.input_data]
+        )
+        
+        return {"status": "resumed", "task_id": task_id}
+
 @app.websocket("/tasks/{task_id}/stream")
 async def stream_task(websocket: WebSocket, task_id: str):
     await websocket.accept()
-    # Streaming logic via Valkey PubSub...
+    logger.info("websocket_connected", task_id=task_id)
+    
     try:
-        while True:
-            data = await websocket.receive_text()
-            # Handle client messages if needed
+        client = valkey_async.from_url(settings.VALKEY_URL)
+        pubsub = client.pubsub()
+        await pubsub.subscribe(f"task_stream:{task_id}")
+        
+        async for message in pubsub.listen():
+            if message["type"] == "message":
+                await websocket.send_text(message["data"].decode("utf-8"))
     except WebSocketDisconnect:
-        logger.info(f"WebSocket disconnected for task {task_id}")
+        logger.info("websocket_disconnected", task_id=task_id)
+    except Exception as e:
+        logger.error("websocket_error", task_id=task_id, error=str(e))
+    finally:
+        await websocket.close()
 
 FastAPIInstrumentor().instrument_app(app)
