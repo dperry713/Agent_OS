@@ -1,20 +1,61 @@
 version: '3.8'
 
 services:
-  api:
-    build: .
-    ports:
-      - "8000:8000"
+  # --- Infrastructure ---
+  postgres:
+    image: postgres:15
     environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./agent_os.db
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: agent_os
+    ports:
+      - "5432:5432"
 
-  redis:
-    image: "redis:alpine"
+  valkey:
+    image: valkey/valkey:7.2
     ports:
       - "6379:6379"
 
-volumes:
-  sqlite_data:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  openbao:
+    image: openbao/openbao:latest
+    environment:
+      BAO_DEV_ROOT_TOKEN_ID: "root"
+      BAO_ADDR: "http://0.0.0.0:8200"
+    ports:
+      - "8200:8200"
+
+  # --- Application ---
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - postgres
+      - rabbitmq
+      - valkey
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
+      RABBITMQ_URL: pyamqp://guest@rabbitmq//
+      VALKEY_URL: redis://valkey:6379/0
+    ports:
+      - "8000:8000"
+
+  worker:
+    build: .
+    command: celery -A app.kernel.celery_app worker --loglevel=info
+    depends_on:
+      - postgres
+      - rabbitmq
+      - valkey
+      - openbao
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/agent_os
+      RABBITMQ_URL: pyamqp://guest@rabbitmq//
+      VALKEY_URL: redis://valkey:6379/0
+      VAULT_ADDR: http://openbao:8200
+      VAULT_TOKEN: root

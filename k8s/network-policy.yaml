@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agent-os-worker-egress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: agent-os
+      component: worker
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS
+  - ports:
+    - port: 53
+      protocol: UDP
+    - port: 53
+      protocol: TCP
+  # Allow internal services (Postgres, Valkey, RabbitMQ, OpenBao)
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    - podSelector:
+        matchLabels:
+          app: valkey
+    - podSelector:
+        matchLabels:
+          app: rabbitmq
+    - podSelector:
+        matchLabels:
+          app: openbao
+  # Allow external LLM APIs (Example: Google Gemini)
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0 # In production, restrict to specific IP ranges if known
+    ports:
+    - port: 443
+      protocol: TCP

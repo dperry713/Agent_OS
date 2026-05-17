@@ -1,49 +1,42 @@
-# Agent Runtime OS
+# Agent Runtime OS (Enterprise Edition)
 
-A production-grade, multi-tenant deterministic infrastructure platform for agent execution.
+A production-grade, horizontally scalable, multi-tenant deterministic infrastructure platform for agent execution.
 
-## Features
+## Enterprise Architecture
 
-- **Control Plane**: FastAPI REST API for tenant, agent, and task management.
-- **Deterministic Kernel**: Asyncio-based task scheduler and lifecycle manager.
-- **Secure Runtime**: Policy-enforced tool execution with default-deny behavior.
-- **Isolated Memory**: Per-tenant and per-agent isolated key-value storage (SQLite).
-- **FOSS Stack**: Built entirely with open-source technologies (FastAPI, Redis, PostgreSQL/SQLite, Docker).
-
-## Architecture
-
-1. **Control Plane**: REST API layer.
-2. **Kernel**: Asynchronous task scheduling and dispatching.
-3. **Runtime**: Secure execution of tools.
-4. **Tools**: Plugin-based tool system (Echo, Time built-in).
-5. **Policy**: Default-deny enforcement and audit logging.
-6. **Memory**: Boundary-enforced storage.
+- **Control Plane**: Stateless FastAPI REST API. Handles tenant/agent management and task ingestion.
+- **Worker Plane**: Distributed Celery workers running on a gVisor runtime for hard compute isolation.
+- **Message Broker**: RabbitMQ (Apache 2.0) for durable task queueing.
+- **State Layer**: 
+    - **PostgreSQL**: Primary persistent storage with **Row-Level Security (RLS)** for strict tenant data isolation.
+    - **Valkey**: Distributed cache for session state and rate limiting.
+- **Security**: 
+    - **OpenBao**: Dynamic secret management (LLM API keys).
+    - **gVisor**: Sandbox runtime for agent tool execution.
+    - **K8s Network Policies**: Egress lockdown for worker pods.
+- **Observability**: OpenTelemetry instrumentation with distributed tracing.
+- **Scaling**: KEDA event-driven autoscaling based on RabbitMQ queue length.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Docker & Docker Compose
-- Python 3.10+ (for local development)
+- (Optional) Kubernetes cluster (RKE2 recommended) with gVisor and KEDA.
 
-### Running with Docker
+### Running Locally (Docker Compose)
 
-```bash
-docker-compose up --build
-```
-
-The API will be available at `http://localhost:8000`.
-
-### Local Development
-
-1. Install dependencies:
+1. Build and start the entire stack:
    ```bash
-   pip install -r requirements.txt
+   docker-compose up --build
    ```
-2. Run the server:
+
+2. Initialize the Database and OpenBao secrets:
    ```bash
-   python app/main.py
+   docker-compose exec api python scripts/initialize_enterprise.py
    ```
+
+3. The API is available at `http://localhost:8000`.
 
 ### Running Tests
 
@@ -51,16 +44,19 @@ The API will be available at `http://localhost:8000`.
 pytest tests/
 ```
 
-### Running the Example Script
+### Kubernetes Deployment
 
-Ensure the server is running, then:
-```bash
-python scripts/example.py
-```
+The production-ready manifests are located in the `k8s/` directory.
+
+1. Create the necessary secrets (`agent-os-secrets`).
+2. Apply the manifests:
+   ```bash
+   kubectl apply -f k8s/
+   ```
 
 ## Multi-Tenancy Isolation
 
-- No shared memory between tenants.
-- Independent security policies per tenant.
-- Resource limits (agents, tasks) per tenant.
-- Audit logs tagged with tenant IDs.
+- **Compute**: Every agent task runs in a gVisor sandbox.
+- **Data**: Row-Level Security (RLS) in PostgreSQL ensures a tenant can only see its own rows.
+- **Secrets**: Dynamic injection from OpenBao ensures secrets never persist in the primary DB.
+- **Network**: Strict egress policies restrict worker communication to allowlisted endpoints.

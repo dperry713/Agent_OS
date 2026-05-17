@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-os-worker
+  labels:
+    app: agent-os
+    component: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent-os
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: agent-os
+        component: worker
+    spec:
+      runtimeClassName: gvisor
+      containers:
+      - name: worker
+        image: agent-os:latest
+        command: ["celery", "-A", "app.kernel.celery_app", "worker", "--loglevel=info"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: agent-os-secrets
+              key: database-url
+        - name: RABBITMQ_URL
+          valueFrom:
+            secretKeyRef:
+              name: agent-os-secrets
+              key: rabbitmq-url
+        - name: VALKEY_URL
+          valueFrom:
+            secretKeyRef:
+              name: agent-os-secrets
+              key: valkey-url
+        - name: VAULT_ADDR
+          value: "http://openbao.default.svc.cluster.local:8200"
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent-os-secrets
+              key: vault-token
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"

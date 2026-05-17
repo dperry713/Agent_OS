@@ -1,52 +1,44 @@
-import aiosqlite
-from typing import Any, Optional, Dict
-from app.core.config import settings
+from sqlalchemy import text
+from typing import Optional
+from app.core.db import get_db_session, engine
 
 class MemoryStore:
-    def __init__(self, db_path: str = "agent_memory.db"):
-        self.db_path = db_path
-        self._db: Optional[aiosqlite.Connection] = None
+    def __init__(self):
+        pass
 
     async def initialize(self):
-        if self._db is None:
-            self._db = await aiosqlite.connect(self.db_path)
-            await self._db.execute("""
-                CREATE TABLE IF NOT EXISTS memory (
-                    tenant_id TEXT,
-                    agent_id TEXT,
-                    key TEXT,
-                    value TEXT,
-                    PRIMARY KEY (tenant_id, agent_id, key)
-                )
-            """)
-            await self._db.commit()
+        # Tables are created via Alembic in production.
+        pass
 
     async def close(self):
-        if self._db:
-            await self._db.close()
-            self._db = None
+        # Engine disposal handled at app level if needed.
+        pass
 
     async def get(self, tenant_id: str, agent_id: str, key: str) -> Optional[str]:
-        if not self._db: await self.initialize()
-        async with self._db.execute(
-            "SELECT value FROM memory WHERE tenant_id = ? AND agent_id = ? AND key = ?",
-            (tenant_id, agent_id, key)
-        ) as cursor:
-            row = await cursor.fetchone()
+        async with await get_db_session(tenant_id) as session:
+            result = await session.execute(
+                text("SELECT value FROM memory WHERE tenant_id = :t AND agent_id = :a AND key = :k"),
+                {"t": tenant_id, "a": agent_id, "k": key}
+            )
+            row = result.fetchone()
             return row[0] if row else None
 
     async def set(self, tenant_id: str, agent_id: str, key: str, value: str):
-        if not self._db: await self.initialize()
-        await self._db.execute(
-            "INSERT OR REPLACE INTO memory (tenant_id, agent_id, key, value) VALUES (?, ?, ?, ?)",
-            (tenant_id, agent_id, key, value)
-        )
-        await self._db.commit()
+        async with await get_db_session(tenant_id) as session:
+            await session.execute(
+                text("""
+                    INSERT INTO memory (tenant_id, agent_id, key, value) 
+                    VALUES (:t, :a, :k, :v)
+                    ON CONFLICT (tenant_id, agent_id, key) DO UPDATE SET value = :v
+                """),
+                {"t": tenant_id, "a": agent_id, "k": key, "v": value}
+            )
+            await session.commit()
 
     async def delete(self, tenant_id: str, agent_id: str, key: str):
-        if not self._db: await self.initialize()
-        await self._db.execute(
-            "DELETE FROM memory WHERE tenant_id = ? AND agent_id = ? AND key = ?",
-            (tenant_id, agent_id, key)
-        )
-        await self._db.commit()
+        async with await get_db_session(tenant_id) as session:
+            await session.execute(
+                text("DELETE FROM memory WHERE tenant_id = :t AND agent_id = :a AND key = :k"),
+                {"t": tenant_id, "a": agent_id, "k": key}
+            )
+            await session.commit()

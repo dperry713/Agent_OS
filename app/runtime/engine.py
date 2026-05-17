@@ -8,6 +8,8 @@ from datetime import datetime
 
 from app.tools.context import ToolContext
 
+from app.security.vault import vault_service
+
 class RuntimeEngine:
     def __init__(self, policy_engine: PolicyEngine, memory_store: MemoryStore):
         self.policy_engine = policy_engine
@@ -16,6 +18,11 @@ class RuntimeEngine:
     async def execute_task(self, task: Task, agent: Agent, tenant: Tenant) -> Task:
         task.status = TaskStatus.RUNNING
         task.started_at = datetime.utcnow()
+        
+        # 0. Dynamic Secret Injection (e.g., LLM API Keys)
+        api_key = vault_service.get_llm_api_key(tenant.tenant_id, "google")
+        if api_key:
+            task.input_data["api_key"] = api_key # Inject into task context
         
         # 1. Validate Policy
         allowed = await self.policy_engine.validate_execution(tenant, agent, task.tool_name)

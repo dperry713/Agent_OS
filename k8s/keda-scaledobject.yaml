@@ -1,0 +1,16 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: agent-os-worker-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: agent-os-worker
+  minReplicaCount: 0
+  maxReplicaCount: 50
+  triggers:
+  - type: rabbitmq
+    metadata:
+      queueName: celery
+      queueLength: "5"
+      host: RABBITMQ_URL # This would typically be a secret reference in a real setup
