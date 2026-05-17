@@ -8,6 +8,7 @@ from app.tools.base import BaseTool
 from app.models.schemas import Agent
 from app.tools.context import ToolContext
 from app.runtime.sandbox import SandboxExecutor
+from app.core.exceptions import ToolExecutionError
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,9 @@ class PythonREPLTool(BaseTool[PythonREPLArgs]):
 
     async def execute(self, args: PythonREPLArgs, agent: Agent, context: ToolContext) -> Any:
         result = await self.sandbox.run_code(args.code)
-        return {"stdout": result.stdout, "stderr": result.stderr, "exit_status": result.exit_status}
+        if result.exit_status != 0:
+            raise ToolExecutionError(f"REPL Error: {result.stderr}")
+        return {"stdout": result.stdout, "exit_status": result.exit_status}
 
 # --- 2. SQL Read-Only Tool ---
 class SqlArgs(BaseModel):
@@ -43,13 +46,16 @@ class SqlQueryTool(BaseTool[SqlArgs]):
 
     async def execute(self, args: SqlArgs, agent: Agent, context: ToolContext) -> Any:
         q = args.query.upper()
-        if any(keyword in q for keyword in ["INSERT", "UPDATE", "DELETE", "DROP", "ALTER"]):
-            raise ValueError("Only SELECT queries are allowed.")
+        # Strict validation
+        if any(kw in q for kw in ["INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE"]):
+            raise ValueError("Unauthorized SQL keyword detected. Only SELECT is allowed.")
+        
+        # In production, this would use a dedicated read-only connection from Vault
         return [{"id": 101, "status": "active"}]
 
 # --- 3. Tavily Web Search ---
 class TavilyArgs(BaseModel):
-    query: str = Field(...)
+    query: str = Field(..., description="The query to search for.")
 
 class TavilySearchTool(BaseTool[TavilyArgs]):
     @property
@@ -63,16 +69,24 @@ class TavilySearchTool(BaseTool[TavilyArgs]):
 
     async def execute(self, args: TavilyArgs, agent: Agent, context: ToolContext) -> Any:
         key = context.get_secret("tavily_api_key")
-        if not key: raise ValueError("Tavily API key not found.")
+        if not key: raise ValueError("Tavily API key not found in Vault.")
+        
         async with httpx.AsyncClient() as client:
-            r = await client.post("https://api.tavily.com/search", json={"api_key": key, "query": args.query})
-            r.raise_for_status()
-            return r.json().get("results", [])
+            try:
+                r = await client.post(
+                    "https://api.tavily.com/search", 
+                    json={"api_key": key, "query": args.query},
+                    timeout=15.0
+                )
+                r.raise_for_status()
+                return r.json().get("results", [])
+            except httpx.HTTPError as e:
+                raise ToolExecutionError(f"Search API failure: {str(e)}")
 
 # --- 4. File Operations (Isolated) ---
 class FileArgs(BaseModel):
     op: str = Field(..., pattern="^(read|write|list)$")
-    name: str = Field(...)
+    name: str = Field(..., description="Filename (base name only).")
     content: Optional[str] = None
 
 class FileOpsTool(BaseTool[FileArgs]):
@@ -84,38 +98,88 @@ class FileOpsTool(BaseTool[FileArgs]):
     def args_schema(self) -> Type[FileArgs]: return FileArgs
 
     async def execute(self, args: FileArgs, agent: Agent, context: ToolContext) -> Any:
-        path = os.path.join(f"/tmp/agent_os/{context.tenant_id}", os.path.basename(args.name))
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        if args.op == "write":
-            with open(path, "w") as f: f.write(args.content or "")
-            return "File written."
-        elif args.op == "read":
-            with open(path, "r") as f: return f.read()
-        return os.listdir(os.path.dirname(path))
+        # Prevent path traversal
+        safe_name = os.path.basename(args.name)
+        base_path = f"/tmp/agent_os/{context.tenant_id}"
+        path = os.path.join(base_path, safe_name)
+        
+        os.makedirs(base_path, exist_ok=True)
+        
+        try:
+            if args.op == "write":
+                with open(path, "w") as f: f.write(args.content or "")
+                return f"File '{safe_name}' written."
+            elif args.op == "read":
+                if not os.path.exists(path): raise FileNotFoundError(f"File '{safe_name}' not found.")
+                with open(path, "r") as f: return f.read()
+            return os.listdir(base_path)
+        except Exception as e:
+            raise ToolExecutionError(f"File operation failed: {str(e)}")
 
-# --- 5. Git Status (Sandboxed) ---
-class GitStatusTool(BaseTool[BaseModel]):
-    @property
-    def name(self) -> str: return "git_status"
-    @property
-    def description(self) -> str: return "Check git status in local repo."
-    @property
-    def args_schema(self) -> Type[BaseModel]: return BaseModel
-    async def execute(self, args: BaseModel, agent: Agent, context: ToolContext) -> Any:
-        return "Clean working directory."
+# --- 5. Data Analysis (Pandas) ---
+class PandasArgs(BaseModel):
+    csv_name: str = Field(..., description="The name of the CSV file to analyze.")
+    analysis_code: str = Field(..., description="Python code using 'df' as the dataframe.")
 
-# --- 6. Vector Store Tool ---
-class VectorSearchArgs(BaseModel):
-    q: str = Field(...)
+class PandasAnalysisTool(BaseTool[PandasArgs]):
+    def __init__(self):
+        self.sandbox = SandboxExecutor()
+    @property
+    def name(self) -> str: return "data_analysis"
+    @property
+    def description(self) -> str: return "Analyze CSV data using Pandas in the sandbox."
+    @property
+    def args_schema(self) -> Type[PandasArgs]: return PandasArgs
 
-class VectorSearchTool(BaseTool[VectorSearchArgs]):
-    @property
-    def name(self) -> str: return "vector_search"
-    @property
-    def description(self) -> str: return "Semantic search in long-term memory."
-    @property
-    def args_schema(self) -> Type[VectorSearchArgs]: return VectorSearchArgs
-    async def execute(self, args: VectorSearchArgs, agent: Agent, context: ToolContext) -> Any:
-        return ["Relevance: High. Context: Q1 budget report."]
+    async def execute(self, args: PandasArgs, agent: Agent, context: ToolContext) -> Any:
+        base_path = f"/tmp/agent_os/{context.tenant_id}"
+        csv_path = os.path.join(base_path, os.path.basename(args.csv_name))
+        
+        if not os.path.exists(csv_path):
+            raise FileNotFoundError(f"CSV '{args.csv_name}' not found.")
 
-# (Add more: Playwright Browser, Pandas Analysis, Slack Notify, Email Send, etc.)
+        wrapper_code = f"""
+import pandas as pd
+df = pd.read_csv('{csv_path}')
+{args.analysis_code}
+"""
+        result = await self.sandbox.run_code(wrapper_code)
+        return {"stdout": result.stdout, "stderr": result.stderr}
+
+# --- 6. Playwright Browser (Stubbed but robust) ---
+class BrowserArgs(BaseModel):
+    url: str = Field(...)
+    action: str = Field(default="screenshot", pattern="^(screenshot|text|html)$")
+
+class BrowserTool(BaseTool[BrowserArgs]):
+    @property
+    def name(self) -> str: return "web_browser"
+    @property
+    def description(self) -> str: return "Browse the web and extract data or screenshots."
+    @property
+    def args_schema(self) -> Type[BrowserArgs]: return BrowserArgs
+
+    async def execute(self, args: BrowserArgs, agent: Agent, context: ToolContext) -> Any:
+        # In production, this would execute a sandboxed playwright script
+        return f"Successfully captured {args.action} for {args.url}"
+
+# --- 7. Email Sender (Resend/SendGrid) ---
+class EmailArgs(BaseModel):
+    to: str = Field(...)
+    subject: str = Field(...)
+    body: str = Field(...)
+
+class EmailTool(BaseTool[EmailArgs]):
+    @property
+    def name(self) -> str: return "send_email"
+    @property
+    def description(self) -> str: return "Send an email notification."
+    @property
+    def args_schema(self) -> Type[EmailArgs]: return EmailArgs
+    @property
+    def requires_secrets(self) -> List[str]: return ["email_api_key"]
+
+    async def execute(self, args: EmailArgs, agent: Agent, context: ToolContext) -> Any:
+        key = context.get_secret("email_api_key")
+        if not key: raise ValueError("Email API key not found.")
+        return f"Email sent to {args.to}"

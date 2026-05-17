@@ -55,7 +55,13 @@ async def agent_os_exception_handler(request: Request, exc: AgentOSException):
         content={"message": str(exc), "details": exc.details},
     )
 
+from app.core.metrics import metrics
+
 # --- Endpoints ---
+
+@app.get("/metrics")
+async def get_metrics():
+    return metrics.get_latest_metrics()
 
 @app.get("/health")
 async def health_check():

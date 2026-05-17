@@ -2,7 +2,8 @@ from typing import Dict, Optional, List, Any, Type
 from app.tools.base import BaseTool
 from app.tools.builtins import (
     PythonREPLTool, SqlQueryTool, TavilySearchTool, 
-    FileOpsTool, GitStatusTool, VectorSearchTool
+    FileOpsTool, GitStatusTool, VectorSearchTool,
+    PandasAnalysisTool, BrowserTool, EmailTool
 )
 import logging
 
@@ -22,12 +23,15 @@ class ToolRegistry:
         self.register(FileOpsTool())
         self.register(GitStatusTool())
         self.register(VectorSearchTool())
+        self.register(PandasAnalysisTool())
+        self.register(BrowserTool())
+        self.register(EmailTool())
 
     def register(self, tool: BaseTool):
         if tool.name in self._tools:
             logger.warning(f"Overwriting tool: {tool.name}")
         self._tools[tool.name] = tool
-        logger.info(f"Registered tool: {tool.name} (v{getattr(tool, 'version', '1.0.0')})")
+        logger.info(f"Registered tool: {tool.name}")
 
     def get_tool(self, name: str) -> Optional[BaseTool]:
         return self._tools.get(name)
@@ -43,7 +47,6 @@ class ToolRegistry:
                 "description": tool.description,
                 "parameters": tool.get_json_schema(),
                 "metadata": {
-                    "version": getattr(tool, "version", "1.0.0"),
                     "requires_secrets": tool.requires_secrets
                 }
             }

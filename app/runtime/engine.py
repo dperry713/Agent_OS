@@ -12,6 +12,7 @@ from app.tools.context import ToolContext
 from app.runtime.sandbox import SandboxExecutor
 from app.security.vault import vault_service
 from app.core.exceptions import ToolExecutionError, PolicyViolation
+from app.core.resilience import CircuitBreaker
 
 # OpenTelemetry
 from opentelemetry import trace
@@ -24,6 +25,7 @@ class RuntimeEngine:
         self.policy_engine = policy_engine
         self.memory_store = memory_store
         self.sandbox = SandboxExecutor()
+        self.circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
 
     @tracer.start_as_current_span("execute_task")
     async def execute_task(self, task: Task, agent: Agent, tenant: Tenant) -> Task:
@@ -45,8 +47,10 @@ class RuntimeEngine:
             if api_key:
                 task.input_data["_secret_key"] = api_key
 
-            # 3. Execution (with Retry Policy)
-            result = await self._execute_with_retry(task, agent, tenant)
+            # 3. Execution (with Circuit Breaker & Retry Policy)
+            result = await self.circuit_breaker.call(
+                self._execute_with_retry, task, agent, tenant
+            )
             
             task.result = result
             task.status = TaskStatus.COMPLETED
