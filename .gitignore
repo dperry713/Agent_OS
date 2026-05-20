@@ -119,39 +119,10 @@ celerybeat.pid
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-.idea/
-
-# VS Code
-.vscode/
-
-# Project specific
-agent_os.db
-agent_os.db-journal
+# Database files
+*.db          # Blocks local SQLite databases
+*.sqlite      # Blocks local SQLite databases
+*.sqlite3     # Blocks local SQLite databases
+agent_memory.db # Explicit block for agent memory store
+agent_os.db    # Explicit block for main local DB

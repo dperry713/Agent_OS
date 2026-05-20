@@ -1,0 +1,63 @@
+name: Agent_OS CI Hardening
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  hardening-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: gVisor Guard
+        run: |
+          grep -q "runtime: runsc" docker-compose.yml || (echo "ERROR: runtime: runsc missing in docker-compose.yml" && exit 1)
+          echo "✅ gVisor guard passed"
+
+      - name: Secret Guard
+        run: |
+          grep -i "POSTGRES_PASSWORD=postgres" docker-compose.yml && (echo "ERROR: Hardcoded password found in docker-compose.yml" && exit 1) || true
+          echo "✅ Secret guard passed"
+
+      - name: DB Artifact Guard
+        run: |
+          find . -name "*.db" -not -path "./venv/*" | grep . && (echo "ERROR: Database artifact found in repository" && exit 1) || true
+          echo "✅ DB artifact guard passed"
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install bandit pip-audit
+
+      - name: Bandit Security Scan
+        run: bandit -r app/
+
+      - name: Dependency Vulnerability Audit
+        run: pip-audit -r requirements.txt
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+      
+      - name: Run Tests with Coverage
+        run: pytest --cov=app --cov-fail-under=80
