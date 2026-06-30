@@ -1,68 +1,33 @@
-# Agent_OS: Enterprise-Grade AI Agent Runtime
+# AgentOS
 
-Agent_OS is a production-hardened, multi-tenant, and highly isolated execution environment for autonomous AI agents. It provides a secure "OS" layer that handles compute isolation, tenant data sovereignty, and robust tool execution at scale.
+AgentOS is a next-generation Agent Operating System that combines a modern desktop environment, an intelligent agent framework, and a deterministic workflow engine.
 
-## 🚀 Key Features
+## Architecture
 
-- **Bulletproof Isolation**: 
-  - **gVisor (runsc)**: Hardware-like compute isolation for untrusted tool execution.
-  - **Hardened Sandboxing**: Strict POSIX `ulimits`, process group jailing, and immutable root filesystems.
-- **Multi-Tenant Architecture**: 
-  - **Hardened PostgreSQL RLS**: Tenant isolation enforced via `SECURITY DEFINER` functions and transaction-local variables.
-  - **Data Sovereignty**: Logical isolation at the database kernel level; zero cross-tenant visibility.
-- **Dynamic Security**: 
-  - **Vault AppRole**: Secure machine-to-machine authentication with short-lived tokens and automatic revocation.
-  - **Egress Lockdown**: Kubernetes `NetworkPolicies` with strict allowlisting and RFC1918 blocking.
-- **Distributed Reliability**: 
-  - **Idempotent State Machine**: Optimistic locking via SQLAlchemy versioning ensures consistency across distributed workers.
-  - **Advanced Celery**: Dead-letter queues (DLQ), task priority support, and resilient retry policies.
-- **Observability (100% Visibility)**: 
-  - **Distributed Tracing**: End-to-end OTel tracing with Jaeger.
-  - **Structured Logging**: JSON logs via `structlog` with correlation IDs (trace/span/tenant/task).
-  - **Tenant Metrics**: Prometheus metrics sharded by `tenant_id` for granular monitoring and billing.
-- **Enterprise-Scale Features**:
-  - **OPA Integration**: Fine-grained tool access control via Open Policy Agent sidecars.
-  - **Autoscaling**: KEDA-driven scaling based on queue depth (scales to zero) + API HPA.
-  - **Semantic Caching**: High-performance vector-based result caching to reduce LLM costs and latency.
+AgentOS has been completely rewritten from the ground up using a highly-performant, decoupled client-server architecture:
+- **Backend (Rust)**: High-performance core responsible for system operations, CQRS event routing, and SQLite storage. It exposes its services over a gRPC IPC layer.
+- **Frontend (.NET 9 C# Avalonia UI)**: A rich, cross-platform Desktop UI using `Dock.Avalonia` for flexible panel layouts and MVVM for decoupled view logic.
 
-## 🏗 Architecture
+## Key Features
 
-```text
-Control Plane (FastAPI) <---> Message Broker (RabbitMQ) <---> Worker Plane (Celery + gVisor)
-      |                                                        |
-      +--> State Layer (Postgres RLS + HNSW Vector)            +--> Sandbox (ulimits + runsc)
-      +--> Secret Layer (Vault AppRole)                        +--> OPA Policy Sidecar
-      +--> Cache Layer (Valkey + Semantic Cache)               +--> Audit Log (Signed HMAC)
+- **CQRS Event Bus**: The backend utilizes a scalable in-memory Event and Command bus with thread-safe handler dispatch.
+- **Docking Layout**: The UI leverages a fully customizable docking layout out of the box using `Dock.Avalonia`.
+- **Custom Shell Replacement**: You can run AgentOS as your default Windows shell. A toggle within the UI will modify the registry to launch AgentOS on boot instead of `explorer.exe`.
+- **Auto-Kill Failsafe**: If AgentOS is running as your custom shell and something goes wrong, you can press `CTRL+ALT+SHIFT+K` at any time. A low-level system hook in the Rust kernel will detect this, restore the default Windows shell, and safely restart your computer.
+- **OpenTelemetry Logging**: Integrated tracing throughout the Rust backend and C# frontend for complete observability.
+- **SQLite Persistence**: Fully configured database migrations and SQLx integration for persistent state management.
+
+## Quickstart
+
+Use the provided `start.ps1` script to build and launch both the backend kernel and the frontend UI concurrently.
+
+### Prerequisites
+- **Rust**: Latest stable version installed via `rustup`.
+- **.NET 9 SDK**: Installed to build and run the Avalonia frontend.
+
+### Running the System
+```powershell
+.\start.ps1
 ```
 
-## 🛠 Installation & Deployment
-
-### Local Development (Hardened)
-```bash
-# Requires VAULT_ROLE_ID and VAULT_SECRET_ID in .env
-docker-compose up --build
-```
-
-### Production Kubernetes
-Deployment is managed via a comprehensive Helm chart supporting:
-- **KEDA ScaledObjects** for worker auto-scaling.
-- **NetworkPolicies** for network-level isolation.
-- **SecurityContexts** (runAsNonRoot, readOnlyRootFilesystem).
-
-## 🛡 Security Model
-
-1. **Jailed Compute**: Every worker runs as a non-privileged user (UID 10001) in a gVisor microVM.
-2. **Resource Quotas**: Distributed sliding-window rate limiting via Valkey prevents noisy-neighbor issues.
-3. **Tamper-Proof Auditing**: HMAC-SHA256 chained audit logs ensure that execution records cannot be altered or deleted.
-4. **Zero-Trust Networking**: Default-deny ingress and explicitly allowlisted egress to verified LLM endpoints only.
-
-## 📜 Roadmap Compliance
-
-- [x] v1.0 Core Architecture (RLS, Celery, gVisor)
-- [x] Hardened RLS with SECURITY DEFINER
-- [x] Vault AppRole Integration
-- [x] Advanced Observability (OTel + Structlog)
-- [x] KEDA & HPA Autoscaling
-- [x] OPA Policy Integration
-- [x] Semantic Vector Caching
-- [x] Tamper-Proof Audit Logging
+*(Note: The script handles cleanup automatically by terminating the backend when you close the frontend UI).*

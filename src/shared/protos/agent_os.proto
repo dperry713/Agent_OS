@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package agentos.core;
+
+service CoreIpc {
+    rpc Ping (PingRequest) returns (PingResponse);
+    rpc ToggleCustomShell (ToggleShellRequest) returns (ToggleShellResponse);
+    rpc IsCustomShellEnabled (EmptyRequest) returns (ToggleShellResponse);
+}
+
+message PingRequest {
+    string message = 1;
+}
+
+message PingResponse {
+    string message = 1;
+}
+
+message EmptyRequest {}
+
+message ToggleShellRequest {
+    bool enable = 1;
+}
+
+message ToggleShellResponse {
+    bool is_enabled = 1;
+    string message = 2;
+}

@@ -1,0 +1,2 @@
+cargo:rerun-if-changed=../../shared/protos/agent_os.proto
+cargo:rerun-if-changed=../../shared/protos

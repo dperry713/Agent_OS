@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AgentOS.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="AgentOS.Desktop.Views.MainWindow"
+        Title="AgentOS Desktop"
+        Width="1024" Height="768">
+  <Grid ColumnDefinitions="200,*" RowDefinitions="*">
+    <!-- Navigation Pane -->
+    <ListBox Grid.Column="0"
+             Items="{Binding NavigationService.Modules}"
+             SelectedValue="{Binding NavigationService.CurrentModule, Mode=TwoWay}"
+             SelectedValuePath="Key"
+             DisplayMemberPath="DisplayName"
+             Margin="5" />
+
+    <!-- Content Area -->
+    <ContentControl Grid.Column="1"
+                    Content="{Binding CurrentViewModel}" />
+  </Grid>
+</Window>

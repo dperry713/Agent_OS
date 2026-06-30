@@ -1,0 +1,2 @@
+obj\Release\net9.0/AgentOs.cs \
+obj\Release\net9.0/AgentOsGrpc.cs: ../shared/protos/agent_os.proto
