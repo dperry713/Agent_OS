@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Restore .NET packages
+        run: dotnet restore
+
+      - name: Build .NET solution
+        run: dotnet build --configuration Release
+
+      - name: Run .NET tests
+        run: dotnet test --no-build --configuration Release
+
+      - name: Run Rust tests
+        run: cargo test --workspace
