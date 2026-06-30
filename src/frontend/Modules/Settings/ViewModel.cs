@@ -1,4 +1,5 @@
 using ReactiveUI;
+using AgentOS.Frontend.Services;
 using System.Reactive;
 using System.Reactive.Linq;
 

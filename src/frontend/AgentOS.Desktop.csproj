@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -11,8 +12,12 @@
     <Protobuf Include="..\shared\protos\agent_os.proto" GrpcServices="Client" />
     <Protobuf Include="..\shared\protos\runtime.proto" GrpcServices="Client" />
     <Folder Include="Models\" />
-    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="**/*.axaml" />
+
   </ItemGroup>
+
+
+
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.0.5" />
@@ -47,8 +52,15 @@
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
     <!-- Added missing dependencies -->
     <PackageReference Include="ReactiveUI" Version="17.3.0" />
-    <PackageReference Include="System.Reactive" Version="6.0.0" />
-    <PackageReference Include="Avalonia.Themes.Default" Version="12.0.5" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Tests\**\*.cs" />
+    <EmbeddedResource Remove="Tests\**\*" />
+    <None Remove="Tests\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Avalonia.Themes.Default removed - not needed -->
   </ItemGroup>
 
   <PropertyGroup>

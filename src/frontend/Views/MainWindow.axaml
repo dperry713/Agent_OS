@@ -9,12 +9,7 @@
         Width="1024" Height="768">
   <Grid ColumnDefinitions="200,*" RowDefinitions="*">
     <!-- Navigation Pane -->
-    <ListBox Grid.Column="0"
-             Items="{Binding NavigationService.Modules}"
-             SelectedValue="{Binding NavigationService.CurrentModule, Mode=TwoWay}"
-             SelectedValuePath="Key"
-             DisplayMemberPath="DisplayName"
-             Margin="5" />
+    <TextBlock Text="Navigation placeholder" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
     <!-- Content Area -->
     <ContentControl Grid.Column="1"

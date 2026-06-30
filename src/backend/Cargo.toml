@@ -3,6 +3,9 @@ members = [
     "domain",
     "application",
     "infrastructure",
-    "presentation", "shell", "services",
+    "presentation",
+    "shell",
+    "services",
+    "health",
 ]
 resolver = "2"

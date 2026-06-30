@@ -10,25 +10,11 @@ pub async fn init_db(db_path: impl AsRef<Path>) -> Result<Pool<Sqlite>, sqlx::Er
         .connect(&url)
         .await?;
 
-    // Create a basic metadata table as part of M6 initialization
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS metadata (
-            key TEXT PRIMARY KEY,
-            value TEXT NOT NULL
-        );"
-    )
-    .execute(&pool)
-    .await?;
-
-    // Create a settings table for key/value pairs (e.g., dark mode)
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS settings (
-            key TEXT PRIMARY KEY,
-            value TEXT NOT NULL
-        );"
-    )
-    .execute(&pool)
-    .await?;
+    // Apply migrations located in the migrations directory
+    sqlx::migrate!("src/backend/infrastructure/src/migrations")
+        .run(&pool)
+        .await?;
 
     Ok(pool)
 }
+

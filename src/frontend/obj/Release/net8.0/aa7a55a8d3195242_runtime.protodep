@@ -1,0 +1,2 @@
+obj\Release\net8.0/Runtime.cs \
+obj\Release\net8.0/RuntimeGrpc.cs: ../shared/protos/runtime.proto

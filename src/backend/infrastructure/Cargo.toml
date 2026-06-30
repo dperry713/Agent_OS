@@ -6,6 +6,6 @@ edition = "2024"
 [dependencies]
 config = "0.15.25"
 serde = { version = "1.0.228", features = ["derive"] }
-sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio", "macros"] }
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio", "macros", "migrate"] }
 tokio = { version = "1", features = ["full"] }
 tonic = { version = "0.12", features = ["transport"] }

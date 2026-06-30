@@ -10,6 +10,15 @@ use tonic::{transport::Server, Request, Response, Status};
 use winreg::enums::*;
 use winreg::RegKey;
 
+use application::todo_service::TodoService;
+use application::command_bus::InMemoryCommandBus;
+use application::query_bus::InMemoryQueryBus;
+use domain::repository::SqliteTodoRepository;
+use std::sync::Arc;
+use infrastructure::settings::AppSettings;
+use infrastructure::db::init_db;
+use settings_service::server as settings_server;
+
 #[derive(Default)]
 pub struct MyCoreIpc {}
 
@@ -136,19 +145,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Starting AgentOS gRPC Server...");
 
+   
+
+    // Initialize settings
     let settings = infrastructure::settings::AppSettings::new()?;
-    tracing::info!("Loaded settings: {:?}", settings);
-
-    let addr = format!("{}:{}", settings.server.host, settings.server.port).parse()?;
-    
     // Initialize DB
-    let _pool = infrastructure::db::init_db(&settings.database.url).await?;
-    tracing::info!("Database initialized at {}", settings.database.url);
+    let db_pool = infrastructure::db::init_db(&settings.database.url).await?;
+    // Build repository and service
+    let repo = domain::repository::SqliteTodoRepository::new(db_pool);
+    let service = application::todo_service::TodoService::new(std::sync::Arc::new(repo));
+    let command_bus = InMemoryCommandBus::new();
+let query_bus = InMemoryQueryBus::new();
+// Register command handlers
+    command_bus.register(application::todo_service::CreateTodoHandler::new(service.clone())).await?;
+    command_bus.register(application::todo_service::UpdateTodoHandler::new(service.clone())).await?;
+    command_bus.register(application::todo_service::DeleteTodoHandler::new(service.clone())).await?;
 
-    let ipc = MyCoreIpc::default();
+    // Register query handlers
+    query_bus.register(application::todo_service::GetTodoHandler::new(service.clone())).await?;
+    query_bus.register(application::todo_service::ListTodosHandler::new(service.clone())).await?;
+
+    // Start gRPC server
+    let addr = "[::1]:50051".parse()?;
+    let core_ipc = MyCoreIpc::default();
+    let settings_svc = settings_server();
 
     Server::builder()
-        .add_service(CoreIpcServer::new(ipc))
+        .add_service(CoreIpcServer::new(core_ipc))
+        .add_service(settings_svc)
         .serve(addr)
         .await?;
 

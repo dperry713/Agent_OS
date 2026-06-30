@@ -1,4 +1,6 @@
-﻿namespace AgentOS.IntegrationTests;
+using Xunit;
+
+namespace AgentOS.IntegrationTests;
 
 public class UnitTest1
 {

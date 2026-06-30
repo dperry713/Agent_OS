@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Data.Sqlite;
 using System.IO;
 
