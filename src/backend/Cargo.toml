@@ -3,6 +3,6 @@ members = [
     "domain",
     "application",
     "infrastructure",
-    "presentation"
+    "presentation", "shell", "services",
 ]
 resolver = "2"

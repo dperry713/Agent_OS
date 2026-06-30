@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Protobuf Include="..\shared\protos\agent_os.proto" GrpcServices="Client" />
+    <Protobuf Include="..\shared\protos\runtime.proto" GrpcServices="Client" />
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>

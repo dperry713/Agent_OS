@@ -1,33 +1,29 @@
 using System.Threading.Tasks;
-using Grpc.Net.Client;
 using Xunit;
-using SettingsService; // Namespace from generated proto
+using AgentOS.Frontend.Services;
 
 namespace AgentOS.IntegrationTests;
 
 public class SettingsServiceTests : IAsyncLifetime
 {
-    private GrpcChannel _channel;
-    private SettingsService.SettingsServiceClient _client;
+    private SettingsService _settingsService;
 
     public async Task InitializeAsync()
     {
-        // Assumes the backend service is running on localhost:50051 (CI will start it).
-        _channel = GrpcChannel.ForAddress("http://localhost:50051");
-        _client = new SettingsService.SettingsServiceClient(_channel);
+        _settingsService = new SettingsService();
         await Task.CompletedTask;
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
-        await _channel.ShutdownAsync();
+        // No resources to dispose
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task GetDarkThemeEnabled_ReturnsDefaultFalse()
+    public void GetDarkThemeEnabled_ReturnsDefaultFalse()
     {
-        var request = new GetDarkThemeEnabledRequest();
-        var response = await _client.GetDarkThemeEnabledAsync(request);
-        Assert.False(response.Enabled);
+        var result = _settingsService.GetDarkThemeEnabled();
+        Assert.False(result);
     }
 }
