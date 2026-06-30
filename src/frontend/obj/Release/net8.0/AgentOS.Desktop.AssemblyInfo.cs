@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AgentOS.Desktop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+063e647461d218aa1f5b0a40fe905c62ef629295")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e109ecf673b00618e4385f37fe4b06e948eb5f78")]
 [assembly: System.Reflection.AssemblyProductAttribute("AgentOS.Desktop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AgentOS.Desktop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

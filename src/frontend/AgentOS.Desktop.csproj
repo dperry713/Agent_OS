@@ -44,6 +44,10 @@
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.16.0" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
+    <!-- Added missing dependencies -->
+    <PackageReference Include="ReactiveUI" Version="17.3.0" />
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
+    <PackageReference Include="Avalonia.Themes.Default" Version="12.0.5" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -35,7 +35,64 @@ build_property.EnableCodeStyleSeverity =
 [C:/Users/d/Agent_OS/src/frontend/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[C:/Users/d/Agent_OS/src/frontend/Views/AgentControlCenter.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/AutomationStudio.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/Dashboard.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/Git.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/IntegratedIDE.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/KnowledgeGraph.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [C:/Users/d/Agent_OS/src/frontend/Views/MainWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/MemoryExplorer.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/ModelManager.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/PackageManager.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/PluginMarketplace.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/Projects.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/PromptLibrary.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/SecurityCenter.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/Settings.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/TaskQueue.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/Terminal.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/UserProfiles.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/WorkflowDesigner.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/d/Agent_OS/src/frontend/Views/Workspace.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [C:/Users/d/Agent_OS/src/frontend/Assets/avalonia-logo.ico]

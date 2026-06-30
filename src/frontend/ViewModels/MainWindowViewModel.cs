@@ -81,15 +81,5 @@ public partial class MainWindowViewModel : ViewModelBase
             }
         });
     }
-        {
-            var newStatus = !IsCustomShellEnabled;
-            var reply = await _client.ToggleCustomShellAsync(new ToggleShellRequest { Enable = newStatus });
-            IsCustomShellEnabled = reply.IsEnabled;
-            Greeting = reply.Message;
-        }
-        catch (System.Exception ex)
-        {
-            Greeting = $"Failed to toggle shell: {ex.Message}";
-        }
-    }
 }
+
