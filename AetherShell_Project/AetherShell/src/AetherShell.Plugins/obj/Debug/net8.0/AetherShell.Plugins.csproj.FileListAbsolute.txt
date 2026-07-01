@@ -1,0 +1,16 @@
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\bin\Debug\net8.0\AetherShell.Plugins.deps.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\bin\Debug\net8.0\AetherShell.Plugins.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\bin\Debug\net8.0\AetherShell.Plugins.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\bin\Debug\net8.0\AetherShell.Core.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\bin\Debug\net8.0\AetherShell.Core.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.csproj.AssemblyReference.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.AssemblyInfoInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.AssemblyInfo.cs
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.csproj.CoreCompileInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.sourcelink.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherSh.6CFEF96A.Up2Date
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\refint\AetherShell.Plugins.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\AetherShell.Plugins.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Plugins\obj\Debug\net8.0\ref\AetherShell.Plugins.dll

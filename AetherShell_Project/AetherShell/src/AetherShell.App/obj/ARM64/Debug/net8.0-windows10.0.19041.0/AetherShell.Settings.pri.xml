@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PriInfo>
+	<ResourceMap name="AetherShell.Settings" version="1.0" primary="true">
+		<Qualifiers/>
+		<ResourceMapSubtree name="Files">
+			<ResourceMapSubtree name="AetherShell.Settings">
+				<NamedResource name="SettingsPage.xbf" uri="ms-resource://AetherShell.Settings/Files/AetherShell.Settings/SettingsPage.xbf">
+					<Candidate type="Path">
+						<Value>AetherShell.Settings\SettingsPage.xbf</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+		</ResourceMapSubtree>
+	</ResourceMap>
+</PriInfo>

@@ -1,0 +1,54 @@
+<Page
+    x:Class="AetherShell.Settings.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="32">
+        <StackPanel Spacing="24" MaxWidth="800" HorizontalAlignment="Left">
+            <StackPanel Spacing="4">
+                <TextBlock Text="System Settings" FontSize="28" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                <TextBlock Text="Manage AetherShell modules, AI configuration, and automation preferences." FontSize="14" Foreground="#9E9EAF"/>
+            </StackPanel>
+
+            <Border Background="#1C1B22" BorderBrush="#2D2C35" BorderThickness="1" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="20">
+                    <TextBlock Text="AI Orchestrator &amp; Models" FontSize="18" FontWeight="Medium" Foreground="#FFFFFF"/>
+                    
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Active AI Model" FontSize="14" Foreground="#D2D2D9" Margin="0,0,0,4"/>
+                        <ComboBox SelectedIndex="0" Width="300" Background="#2B2A33" BorderBrush="#3B3A45">
+                            <ComboBoxItem Content="Gemini 3.5 Flash (Medium) - Default"/>
+                            <ComboBoxItem Content="Gemini 3.5 Pro (Large)"/>
+                            <ComboBoxItem Content="Local Llama 3 (8B)"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Agent Temperature" FontSize="14" Foreground="#D2D2D9"/>
+                        <Slider Minimum="0" Maximum="1" Value="0.7" StepFrequency="0.1" Width="300" Foreground="#A855F7" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Background="#1C1B22" BorderBrush="#2D2C35" BorderThickness="1" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="20">
+                    <TextBlock Text="Module Activation" FontSize="18" FontWeight="Medium" Foreground="#FFFFFF"/>
+
+                    <ToggleSwitch Header="Enable Vision (Screen Capture &amp; OCR)" IsOn="True" Foreground="#D2D2D9" OffContent="Disabled" OnContent="Active"/>
+                    <ToggleSwitch Header="Enable Automation (Workflow Trigger)" IsOn="True" Foreground="#D2D2D9" OffContent="Disabled" OnContent="Active"/>
+                    <ToggleSwitch Header="Enable Background Plugins" IsOn="True" Foreground="#D2D2D9" OffContent="Disabled" OnContent="Active"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="#1C1B22" BorderBrush="#2D2C35" BorderThickness="1" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="20">
+                    <TextBlock Text="Voice &amp; Input Services" FontSize="18" FontWeight="Medium" Foreground="#FFFFFF"/>
+
+                    <ToggleSwitch x:Name="SttToggle" Header="Speech-to-Text Dictation" IsOn="False" Foreground="#D2D2D9" OffContent="Disabled" OnContent="Active" Toggled="SttToggle_Toggled"/>
+                    <ToggleSwitch x:Name="TtsToggle" Header="Text-to-Speech Voice Responses" IsOn="False" Foreground="#D2D2D9" OffContent="Disabled" OnContent="Active" Toggled="TtsToggle_Toggled"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

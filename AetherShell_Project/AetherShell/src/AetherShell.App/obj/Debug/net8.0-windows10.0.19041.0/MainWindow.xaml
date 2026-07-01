@@ -1,0 +1,15 @@
+﻿<Window
+    x:Class="AetherShell.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AetherShell.App"
+    Title="AetherShell">
+    <Grid>
+        <!-- Shell content area, taskbar, etc. will be composed here -->
+        <TextBlock Text="AetherShell - AI-First Desktop Environment" 
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center"
+                   FontSize="24"/>
+    </Grid>
+</Window>
+

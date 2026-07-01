@@ -1,0 +1,16 @@
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\bin\Debug\net8.0\AetherShell.Automation.deps.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\bin\Debug\net8.0\AetherShell.Automation.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\bin\Debug\net8.0\AetherShell.Automation.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\bin\Debug\net8.0\AetherShell.Core.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\bin\Debug\net8.0\AetherShell.Core.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.csproj.AssemblyReference.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.AssemblyInfoInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.AssemblyInfo.cs
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.csproj.CoreCompileInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.sourcelink.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherSh.52FB83EC.Up2Date
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\refint\AetherShell.Automation.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\AetherShell.Automation.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Automation\obj\Debug\net8.0\ref\AetherShell.Automation.dll

@@ -1,0 +1,986 @@
+{
+  "format": 1,
+  "restore": {
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.App\\AetherShell.App.csproj": {}
+  },
+  "projects": {
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\AgentOS\\AgentOS.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\AgentOS\\AgentOS.csproj",
+        "projectName": "AgentOS",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\AgentOS\\AgentOS.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\AgentOS\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "framework": "net8.0",
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "framework": "net8.0",
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.AI\\AetherShell.AI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.AI\\AetherShell.AI.csproj",
+        "projectName": "AetherShell.AI",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.AI\\AetherShell.AI.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.AI\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows10.0.19041.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows10.0.19041.0": {
+            "framework": "net8.0-windows10.0.19041",
+            "targetAlias": "net8.0-windows10.0.19041.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\AetherShell.Automation.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\AetherShell.Automation.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\AetherShell.Vision.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\AetherShell.Vision.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0-windows10.0.19041.0": {
+          "framework": "net8.0-windows10.0.19041",
+          "targetAlias": "net8.0-windows10.0.19041.0",
+          "dependencies": {
+            "Microsoft.SemanticKernel": {
+              "target": "Package",
+              "version": "[1.13.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.19041.57, 10.0.19041.57]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref.Windows": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.App\\AetherShell.App.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.App\\AetherShell.App.csproj",
+        "projectName": "AetherShell.App",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.App\\AetherShell.App.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.App\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows10.0.19041.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows10.0.19041.0": {
+            "framework": "net8.0-windows10.0.19041",
+            "targetAlias": "net8.0-windows10.0.19041.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\AgentOS\\AgentOS.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\AgentOS\\AgentOS.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.AI\\AetherShell.AI.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.AI\\AetherShell.AI.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\AetherShell.Automation.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\AetherShell.Automation.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Common\\AetherShell.Common.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Common\\AetherShell.Common.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Platform\\AetherShell.Platform.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Platform\\AetherShell.Platform.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Plugins\\AetherShell.Plugins.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Plugins\\AetherShell.Plugins.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Settings\\AetherShell.Settings.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Settings\\AetherShell.Settings.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Shell\\AetherShell.Shell.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Shell\\AetherShell.Shell.csproj"
+              },
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\AetherShell.Vision.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\AetherShell.Vision.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0-windows10.0.19041.0": {
+          "framework": "net8.0-windows10.0.19041",
+          "targetAlias": "net8.0-windows10.0.19041.0",
+          "dependencies": {
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Windows.SDK.BuildTools": {
+              "target": "Package",
+              "version": "[10.0.28000.2270, )"
+            },
+            "Microsoft.WindowsAppSDK": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-arm64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x86",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-arm64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-x86",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.19041.57, 10.0.19041.57]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-arm64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86",
+              "version": "[8.0.28, 8.0.28]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref.Windows": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-arm64": {
+          "#import": []
+        },
+        "win-x64": {
+          "#import": []
+        },
+        "win-x86": {
+          "#import": []
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\AetherShell.Automation.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\AetherShell.Automation.csproj",
+        "projectName": "AetherShell.Automation",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\AetherShell.Automation.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Automation\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "framework": "net8.0",
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "framework": "net8.0",
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Common\\AetherShell.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Common\\AetherShell.Common.csproj",
+        "projectName": "AetherShell.Common",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Common\\AetherShell.Common.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "framework": "net8.0",
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "framework": "net8.0",
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj",
+        "projectName": "AetherShell.Core",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "framework": "net8.0",
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "framework": "net8.0",
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Data.Sqlite": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "OpenTelemetry": {
+              "target": "Package",
+              "version": "[1.9.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Platform\\AetherShell.Platform.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Platform\\AetherShell.Platform.csproj",
+        "projectName": "AetherShell.Platform",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Platform\\AetherShell.Platform.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Platform\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows10.0.19041.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows10.0.19041.0": {
+            "framework": "net8.0-windows10.0.19041",
+            "targetAlias": "net8.0-windows10.0.19041.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0-windows10.0.19041.0": {
+          "framework": "net8.0-windows10.0.19041",
+          "targetAlias": "net8.0-windows10.0.19041.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.19041.57, 10.0.19041.57]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref.Windows": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Plugins\\AetherShell.Plugins.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Plugins\\AetherShell.Plugins.csproj",
+        "projectName": "AetherShell.Plugins",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Plugins\\AetherShell.Plugins.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Plugins\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "framework": "net8.0",
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "framework": "net8.0",
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.SemanticKernel": {
+              "target": "Package",
+              "version": "[1.13.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Settings\\AetherShell.Settings.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Settings\\AetherShell.Settings.csproj",
+        "projectName": "AetherShell.Settings",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Settings\\AetherShell.Settings.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Settings\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows10.0.19041.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows10.0.19041.0": {
+            "framework": "net8.0-windows10.0.19041",
+            "targetAlias": "net8.0-windows10.0.19041.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0-windows10.0.19041.0": {
+          "framework": "net8.0-windows10.0.19041",
+          "targetAlias": "net8.0-windows10.0.19041.0",
+          "dependencies": {
+            "Microsoft.Windows.SDK.BuildTools": {
+              "target": "Package",
+              "version": "[10.0.28000.2270, )"
+            },
+            "Microsoft.WindowsAppSDK": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.19041.57, 10.0.19041.57]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref.Windows": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Shell\\AetherShell.Shell.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Shell\\AetherShell.Shell.csproj",
+        "projectName": "AetherShell.Shell",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Shell\\AetherShell.Shell.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Shell\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows10.0.19041.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows10.0.19041.0": {
+            "framework": "net8.0-windows10.0.19041",
+            "targetAlias": "net8.0-windows10.0.19041.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0-windows10.0.19041.0": {
+          "framework": "net8.0-windows10.0.19041",
+          "targetAlias": "net8.0-windows10.0.19041.0",
+          "dependencies": {
+            "Microsoft.Windows.SDK.BuildTools": {
+              "target": "Package",
+              "version": "[10.0.28000.2270, )"
+            },
+            "Microsoft.WindowsAppSDK": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.19041.57, 10.0.19041.57]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref.Windows": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\AetherShell.Vision.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\AetherShell.Vision.csproj",
+        "projectName": "AetherShell.Vision",
+        "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\AetherShell.Vision.csproj",
+        "packagesPath": "C:\\Users\\d\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Vision\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows10.0.19041.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows10.0.19041.0": {
+            "framework": "net8.0-windows10.0.19041",
+            "targetAlias": "net8.0-windows10.0.19041.0",
+            "projectReferences": {
+              "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj": {
+                "projectPath": "c:\\Users\\d\\Agent_OSv1.0\\AetherShell_Project\\AetherShell\\src\\AetherShell.Core\\AetherShell.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0-windows10.0.19041.0": {
+          "framework": "net8.0-windows10.0.19041",
+          "targetAlias": "net8.0-windows10.0.19041.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.19041.57, 10.0.19041.57]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref.Windows": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

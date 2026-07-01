@@ -1,0 +1,16 @@
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.deps.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Core.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Core.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.csproj.AssemblyReference.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.AssemblyInfoInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.AssemblyInfo.cs
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.csproj.CoreCompileInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.sourcelink.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherSh.ACE1B0F9.Up2Date
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\refint\AetherShell.Platform.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Platform.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Platform\obj\Debug\net8.0-windows10.0.19041.0\ref\AetherShell.Platform.dll

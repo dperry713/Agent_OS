@@ -1,0 +1,16 @@
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.deps.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Core.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\bin\Debug\net8.0-windows10.0.19041.0\AetherShell.Core.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.csproj.AssemblyReference.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.AssemblyInfoInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.AssemblyInfo.cs
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.csproj.CoreCompileInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.sourcelink.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherSh.AB338CE7.Up2Date
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\refint\AetherShell.Vision.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\AetherShell.Vision.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Vision\obj\Debug\net8.0-windows10.0.19041.0\ref\AetherShell.Vision.dll

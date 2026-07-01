@@ -1,0 +1,10 @@
+﻿<Page
+    x:Class="AetherShell.Settings.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="AetherShell Settings" FontSize="24"/>
+        <!-- AI Model selection, Voice settings, Plugin management, Themes -->
+    </StackPanel>
+</Page>
+

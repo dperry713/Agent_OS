@@ -1,9 +1,0 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="AgentOS.Frontend.Views.Settings">
-  <StackPanel Margin="20" Spacing="10">
-    <TextBlock Text="Settings" FontSize="24" HorizontalAlignment="Center"/>
-    <ToggleButton Content="Dark Theme" IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"/>
-    <Button Content="Save" Command="{Binding SaveCommand}"/>
-  </StackPanel>
-</UserControl>

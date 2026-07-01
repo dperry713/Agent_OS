@@ -1,0 +1,12 @@
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\bin\Debug\net8.0\AetherShell.Common.deps.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\bin\Debug\net8.0\AetherShell.Common.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\bin\Debug\net8.0\AetherShell.Common.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\AetherShell.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\AetherShell.Common.AssemblyInfoInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\AetherShell.Common.AssemblyInfo.cs
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\AetherShell.Common.csproj.CoreCompileInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\AetherShell.Common.sourcelink.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\AetherShell.Common.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\refint\AetherShell.Common.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\AetherShell.Common.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\src\AetherShell.Common\obj\Debug\net8.0\ref\AetherShell.Common.dll

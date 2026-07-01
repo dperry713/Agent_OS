@@ -1,0 +1,15 @@
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\bin\Debug\net8.0\AgentOS.exe
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\bin\Debug\net8.0\AgentOS.deps.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\bin\Debug\net8.0\AgentOS.runtimeconfig.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\bin\Debug\net8.0\AgentOS.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\bin\Debug\net8.0\AgentOS.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.AssemblyInfoInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.AssemblyInfo.cs
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.csproj.CoreCompileInputs.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.sourcelink.json
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\refint\AgentOS.dll
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.pdb
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\AgentOS.genruntimeconfig.cache
+C:\Users\d\Agent_OSv1.0\AetherShell_Project\AetherShell\AgentOS\obj\Debug\net8.0\ref\AgentOS.dll

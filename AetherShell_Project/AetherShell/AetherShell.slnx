@@ -1,0 +1,24 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="src/AetherShell.Core/AetherShell.Core.csproj" />
+  <Project Path="src/AetherShell.Common/AetherShell.Common.csproj" />
+  <Project Path="src/AetherShell.Platform/AetherShell.Platform.csproj" />
+  <Project Path="src/AetherShell.AI/AetherShell.AI.csproj" />
+  <Project Path="src/AetherShell.Shell/AetherShell.Shell.csproj" />
+  <Project Path="src/AetherShell.Settings/AetherShell.Settings.csproj" />
+  <Project Path="src/AetherShell.Plugins/AetherShell.Plugins.csproj" />
+  <Project Path="src/AetherShell.Automation/AetherShell.Automation.csproj" />
+  <Project Path="src/AetherShell.Vision/AetherShell.Vision.csproj" />
+  <Project Path="src/AetherShell.App/AetherShell.App.csproj">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
+  <Project Path="tests/Unit/AetherShell.Tests.Unit.csproj" />
+  <Project Path="AgentOS/AgentOS.csproj" />
+</Solution>
